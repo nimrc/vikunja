@@ -4,7 +4,7 @@ import {DownloadIcon, FileArchiveIcon} from 'lucide-react'
 import {toast} from 'sonner'
 import {userExportDownload, userExportRequest, userExportStatus} from '@/client/generated'
 import {Button} from '@/components/ui/button'
-import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from '@/components/ui/card'
+import {Card} from '@/components/ui/card'
 import {Field, FieldDescription, FieldLabel} from '@/components/ui/field'
 import {Input} from '@/components/ui/input'
 import {Skeleton} from '@/components/ui/skeleton'
@@ -58,16 +58,36 @@ export default function DataExport() {
 			{isLoading ? (
 				<Skeleton className="h-48 rounded-xl" />
 			) : (
-				<Card>
-					<CardHeader>
-						<CardTitle>{ready ? 'Your export is ready' : 'Request an export'}</CardTitle>
-						<CardDescription>
-							{ready
-								? 'Download it before it expires, or request a fresh one.'
-								: "Preparing the export runs in the background. You'll get an email when it's done."}
-						</CardDescription>
-					</CardHeader>
-					<CardContent className="grid gap-4">
+				<Card
+					title={ready ? 'Your export is ready' : 'Request an export'}
+					description={
+						ready
+							? 'Download it before it expires, or request a fresh one.'
+							: "Preparing the export runs in the background. You'll get an email when it's done."
+					}
+					footer={
+						<div className="flex justify-end gap-2">
+							<Button
+								tone={ready ? 'secondary' : 'primary'}
+								disabled={needsPassword || request.isPending}
+								onClick={() => request.mutate()}
+							>
+								{ready ? 'Request new export' : 'Request export'}
+							</Button>
+							{ready && (
+								<Button
+									tone="primary"
+									disabled={needsPassword || download.isPending}
+									onClick={() => download.mutate()}
+								>
+									<DownloadIcon />
+									Download
+								</Button>
+							)}
+						</div>
+					}
+				>
+					<div className="grid gap-4">
 						{ready && (
 							<div className="flex items-center gap-3 rounded-lg border bg-muted/40 p-3">
 								<FileArchiveIcon className="size-5 text-muted-foreground" />
@@ -93,22 +113,7 @@ export default function DataExport() {
 								<FieldDescription>Required to request or download your data.</FieldDescription>
 							</Field>
 						)}
-					</CardContent>
-					<CardFooter className="justify-end gap-2 border-t">
-						<Button
-							variant={ready ? 'outline' : 'default'}
-							disabled={needsPassword || request.isPending}
-							onClick={() => request.mutate()}
-						>
-							{ready ? 'Request new export' : 'Request export'}
-						</Button>
-						{ready && (
-							<Button disabled={needsPassword || download.isPending} onClick={() => download.mutate()}>
-								<DownloadIcon />
-								Download
-							</Button>
-						)}
-					</CardFooter>
+					</div>
 				</Card>
 			)}
 		</>

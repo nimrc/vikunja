@@ -7,7 +7,6 @@ import {AssigneeStack, DueBadge, LabelBadge, PriorityBadge, TaskMetaIcons, useTo
 import {projectHref} from '@/components/app-sidebar'
 import {useOpenTask} from '@/lib/navigation'
 import {cn} from '@/lib/utils'
-import {cssColor} from '@/lib/format'
 
 type Props = {
 	task: Task
@@ -24,7 +23,6 @@ export const TaskRow = forwardRef<HTMLDivElement, Props>(function TaskRow(
 ) {
 	const toggleDone = useToggleDone()
 	const openTask = useOpenTask()
-	const color = cssColor(task.hex_color)
 
 	return (
 		<div
@@ -37,14 +35,15 @@ export const TaskRow = forwardRef<HTMLDivElement, Props>(function TaskRow(
 			style={{paddingLeft: 12 + depth * 28, ...rest.style}}
 		>
 			{handle}
-			<Checkbox
-				checked={!!task.done}
-				disabled={!canWrite}
-				onCheckedChange={v => toggleDone(task, v === true)}
-				className="mt-0.5 rounded-full"
-				style={color && !task.done ? {borderColor: color} : undefined}
-				aria-label={task.done ? 'Mark as not done' : 'Mark as done'}
-			/>
+			<span className="mt-0.5">
+				<Checkbox
+					label={task.done ? 'Mark as not done' : 'Mark as done'}
+					hideLabel
+					checked={!!task.done}
+					disabled={!canWrite}
+					onCheckedChange={v => toggleDone(task, v)}
+				/>
+			</span>
 			<button
 				type="button"
 				onClick={() => openTask(task.id!)}

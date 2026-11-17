@@ -4,7 +4,7 @@ import type {BackgroundState} from '@/App'
 import {TaskDetail} from '@/components/task/task-detail'
 import {Button} from '@/components/ui/button'
 import {Dialog, DialogContent, DialogDescription, DialogTitle} from '@/components/ui/dialog'
-import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip'
+import {Tooltip} from '@/components/ui/tooltip'
 import {useTask} from '@/lib/queries'
 
 function isEditable(el: Element | null) {
@@ -25,16 +25,19 @@ export default function TaskDialog() {
 	}
 
 	return (
-		<Dialog open onOpenChange={open => !open && close()}>
-			<DialogContent
-				showCloseButton={false}
-				aria-describedby={undefined}
-				className="flex h-dvh max-h-dvh w-full max-w-full flex-col gap-0 overflow-hidden rounded-none p-0 sm:h-[min(92vh,60rem)] sm:max-w-[calc(100%-4rem)] sm:rounded-xl lg:max-w-5xl"
+		<Dialog
+			open
+			onOpenChange={(open, details) => {
+				if (open) return
 				// Let Escape cancel an in-progress edit instead of closing the dialog.
-				onEscapeKeyDown={e => {
-					if (isEditable(document.activeElement)) e.preventDefault()
-				}}
-			>
+				if (details.reason === 'escape-key' && isEditable(document.activeElement)) {
+					details.cancel()
+					return
+				}
+				close()
+			}}
+		>
+			<DialogContent size="lg">
 				<DialogTitle className="sr-only">{task?.title ?? 'Task'}</DialogTitle>
 				<DialogDescription className="sr-only">Task details</DialogDescription>
 				<div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
@@ -44,23 +47,23 @@ export default function TaskDialog() {
 						onClose={close}
 						actions={
 							<>
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<Button variant="ghost" size="icon-sm" className="text-muted-foreground" asChild>
-											<Link to={`/tasks/${id}`} replace state={null} aria-label="Open full page">
-												<Maximize2Icon />
-											</Link>
-										</Button>
-									</TooltipTrigger>
-									<TooltipContent>Open full page</TooltipContent>
+								<Tooltip
+									label="Open full page"
+									render={
+										<Button
+											round
+											className="text-muted-foreground"
+											render={<Link to={`/tasks/${id}`} replace state={null} />}
+										/>
+									}
+								>
+									<Maximize2Icon />
 								</Tooltip>
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<Button variant="ghost" size="icon-sm" className="text-muted-foreground" onClick={close} aria-label="Close">
-											<XIcon />
-										</Button>
-									</TooltipTrigger>
-									<TooltipContent>Close</TooltipContent>
+								<Tooltip
+									label="Close"
+									render={<Button round className="text-muted-foreground" onClick={close} />}
+								>
+									<XIcon />
 								</Tooltip>
 							</>
 						}

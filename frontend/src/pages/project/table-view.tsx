@@ -12,7 +12,6 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {Label} from '@/components/ui/label'
 import {Progress} from '@/components/ui/progress'
 import {Skeleton} from '@/components/ui/skeleton'
 import {Switch} from '@/components/ui/switch'
@@ -60,9 +59,8 @@ const COLUMNS: Column[] = [
 		label: 'Progress',
 		sortKey: 'percent_done',
 		render: t => (
-			<span className="flex items-center gap-2">
-				<Progress value={(t.percent_done ?? 0) * 100} className="h-1.5 w-16" />
-				<span className="text-xs text-muted-foreground tabular-nums">{Math.round((t.percent_done ?? 0) * 100)}%</span>
+			<span className="block w-24">
+				<Progress label="Progress" value={Math.round((t.percent_done ?? 0) * 100)} />
 			</span>
 		),
 	},
@@ -137,23 +135,18 @@ export function TableView({project, view}: {project: Project; view: ProjectView}
 	return (
 		<div className="flex w-full flex-col gap-3 p-4 md:p-6">
 			<div className="flex items-center gap-3">
-				<div className="flex items-center gap-2">
-					<Switch
-						id="table-show-done"
-						checked={showDone}
-						onCheckedChange={v => {
-							setShowDone(v)
-							setPage(1)
-						}}
-					/>
-					<Label htmlFor="table-show-done" className="text-sm font-normal">
-						Show done tasks
-					</Label>
-				</div>
+				<Switch
+					label="Show done tasks"
+					checked={showDone}
+					onCheckedChange={v => {
+						setShowDone(v)
+						setPage(1)
+					}}
+				/>
 				<span className="text-sm text-muted-foreground tabular-nums">{query.data?.total ?? 0} tasks</span>
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<Button variant="outline" size="sm" className="ml-auto">
+						<Button size="sm" className="ml-auto">
 							<Columns3Icon />
 							Columns
 						</Button>
@@ -166,7 +159,7 @@ export function TableView({project, view}: {project: Project; view: ProjectView}
 								key={c.key}
 								checked={visible.includes(c.key)}
 								disabled={c.key === 'title'}
-								onSelect={e => e.preventDefault()}
+								closeOnSelect={false}
 								onCheckedChange={v => setColumns(v ? [...visible, c.key] : visible.filter(k => k !== c.key))}
 							>
 								{c.label}
@@ -213,13 +206,15 @@ export function TableView({project, view}: {project: Project; view: ProjectView}
 										{columns.map(c => (
 											<TableCell key={c.key} className={c.className}>
 												{c.key === 'done' ? (
-													<Checkbox
-														checked={!!t.done}
-														disabled={!canWrite}
-														onClick={e => e.stopPropagation()}
-														onCheckedChange={v => toggleDone(t, v === true)}
-														className="rounded-full"
-													/>
+													<span onClick={e => e.stopPropagation()}>
+														<Checkbox
+															label={t.done ? 'Mark as not done' : 'Mark as done'}
+															hideLabel
+															checked={!!t.done}
+															disabled={!canWrite}
+															onCheckedChange={v => toggleDone(t, v)}
+														/>
+													</span>
 												) : (
 													c.render(t)
 												)}
@@ -243,10 +238,10 @@ export function TableView({project, view}: {project: Project; view: ProjectView}
 					<span className="tabular-nums">
 						Page {page} of {totalPages}
 					</span>
-					<Button variant="outline" size="icon-sm" disabled={page <= 1} onClick={() => setPage(p => p - 1)} aria-label="Previous page">
+					<Button round disabled={page <= 1} onClick={() => setPage(p => p - 1)} aria-label="Previous page">
 						<ChevronLeftIcon />
 					</Button>
-					<Button variant="outline" size="icon-sm" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} aria-label="Next page">
+					<Button round disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} aria-label="Next page">
 						<ChevronRightIcon />
 					</Button>
 				</div>

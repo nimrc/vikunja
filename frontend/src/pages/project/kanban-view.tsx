@@ -271,7 +271,7 @@ export function KanbanView({project, view}: {project: Project; view: ProjectView
 					<EmptyTitle>Couldn’t load the board</EmptyTitle>
 					<EmptyDescription>{board.error.message}</EmptyDescription>
 				</EmptyHeader>
-				<Button variant="outline" size="sm" onClick={() => board.refetch()}>
+				<Button size="sm" onClick={() => board.refetch()}>
 					Retry
 				</Button>
 			</Empty>
@@ -364,7 +364,6 @@ function AddBucket({onAdd}: {onAdd: (title: string) => Promise<unknown>}) {
 	if (!open) {
 		return (
 			<Button
-				variant="ghost"
 				className="h-11 w-72 shrink-0 justify-start rounded-xl border border-dashed text-muted-foreground"
 				onClick={() => setOpen(true)}
 			>

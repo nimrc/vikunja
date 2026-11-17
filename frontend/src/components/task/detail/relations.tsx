@@ -6,7 +6,7 @@ import {tasksList, tasksRelationsCreate, tasksRelationsDelete, type Task, type T
 import {Button} from '@/components/ui/button'
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from '@/components/ui/command'
 import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover'
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select'
+import {SelectMenu} from '@/components/ui/select'
 import {Spinner} from '@/components/ui/spinner'
 import {DueBadge} from '@/components/task/task-bits'
 import {errorMessage} from '@/lib/api'
@@ -57,7 +57,7 @@ export function TaskRelations({task, canEdit}: {task: Task; canEdit: boolean}) {
 		<section>
 			<SectionHeader icon={<GitForkIcon />} title="Related tasks" count={total}>
 				{canEdit && !adding && (
-					<Button variant="ghost" size="sm" onClick={() => setAdding(true)}>
+					<Button size="sm" onClick={() => setAdding(true)}>
 						<PlusIcon />
 						Add relation
 					</Button>
@@ -101,8 +101,8 @@ export function TaskRelations({task, canEdit}: {task: Task; canEdit: boolean}) {
 										<DueBadge task={t} className="hidden shrink-0 sm:inline-flex" />
 										{canEdit && (
 											<Button
-												variant="ghost"
-												size="icon-xs"
+												round
+												size="sm"
 												className="text-muted-foreground opacity-0 group-hover/rel:opacity-100 focus-visible:opacity-100 max-sm:opacity-100"
 												aria-label="Remove relation"
 												onClick={() => void remove(g.value, t)}
@@ -154,25 +154,19 @@ function AddRelation({task, onDone}: {task: Task; onDone: () => void}) {
 
 	return (
 		<div className="mb-3 flex flex-col gap-2 rounded-xl border bg-card p-2 sm:flex-row sm:items-center">
-			<Select value={kind} onValueChange={v => setKind(v as Kind)}>
-				<SelectTrigger size="sm" className="sm:w-36">
-					<SelectValue />
-				</SelectTrigger>
-				<SelectContent>
-					{RELATION_KINDS.map(k => (
-						<SelectItem key={k.value} value={k.value}>
-							{k.one}
-						</SelectItem>
-					))}
-				</SelectContent>
-			</Select>
+			<div className="sm:w-36">
+				<SelectMenu
+					label="Relation kind"
+					options={RELATION_KINDS.map(k => ({value: k.value, label: k.one}))}
+					value={kind}
+					onValueChange={v => setKind(v as Kind)}
+				/>
+			</div>
 			<Popover open={open} onOpenChange={setOpen}>
-				<PopoverTrigger asChild>
-					<Button variant="outline" size="sm" className="min-w-0 flex-1 justify-start font-normal">
-						<span className={cn('truncate', !other && 'text-muted-foreground')}>{other?.title ?? 'Search for a task…'}</span>
-					</Button>
+				<PopoverTrigger render={<Button size="sm" className="min-w-0 flex-1 justify-start font-normal" />}>
+					<span className={cn('truncate', !other && 'text-muted-foreground')}>{other?.title ?? 'Search for a task…'}</span>
 				</PopoverTrigger>
-				<PopoverContent className="w-(--radix-popover-trigger-width) min-w-72 p-0" align="start">
+				<PopoverContent className="w-(--anchor-width) min-w-72 p-0" align="start">
 					<Command shouldFilter={false}>
 						<CommandInput placeholder="Search tasks…" value={search} onValueChange={setSearch} />
 						<CommandList>
@@ -206,10 +200,10 @@ function AddRelation({task, onDone}: {task: Task; onDone: () => void}) {
 				</PopoverContent>
 			</Popover>
 			<div className="flex justify-end gap-1">
-				<Button variant="ghost" size="sm" onClick={onDone} disabled={busy}>
+				<Button size="sm" onClick={onDone} disabled={busy}>
 					Cancel
 				</Button>
-				<Button size="sm" onClick={() => void save()} disabled={!other || busy}>
+				<Button tone="primary" size="sm" onClick={() => void save()} disabled={!other || busy}>
 					{busy && <Spinner />}
 					Add
 				</Button>

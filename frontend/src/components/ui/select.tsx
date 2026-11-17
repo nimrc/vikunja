@@ -1,191 +1,273 @@
-"use client"
-
 import * as React from "react"
-import { cn } from "cn"
-import { Select as SelectPrimitive } from "radix-ui"
-import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react"
-
-function Select({
-  ...props
-}: React.ComponentProps<typeof SelectPrimitive.Root>) {
-  return <SelectPrimitive.Root data-slot="select" {...props} />
-}
-
-function SelectGroup({
-  className,
-  ...props
-}: React.ComponentProps<typeof SelectPrimitive.Group>) {
-  return (
-    <SelectPrimitive.Group
-      data-slot="select-group"
-      className={cn("scroll-my-1 p-1", className)}
-      {...props}
-    />
-  )
-}
-
-function SelectValue({
-  ...props
-}: React.ComponentProps<typeof SelectPrimitive.Value>) {
-  return <SelectPrimitive.Value data-slot="select-value" {...props} />
-}
-
-function SelectTrigger({
-  className,
-  size = "default",
-  children,
-  ...props
-}: React.ComponentProps<typeof SelectPrimitive.Trigger> & {
-  size?: "sm" | "default"
-}) {
-  return (
-    <SelectPrimitive.Trigger
-      data-slot="select-trigger"
-      data-size={size}
-      className={cn(
-        "flex w-fit items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent py-2 pr-2 pl-2.5 text-sm whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-placeholder:text-muted-foreground data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        className
-      )}
-      {...props}
-    >
-      {children}
-      <SelectPrimitive.Icon asChild>
-        <ChevronDownIcon className="pointer-events-none size-4 text-muted-foreground" />
-      </SelectPrimitive.Icon>
-    </SelectPrimitive.Trigger>
-  )
-}
-
-function SelectContent({
-  className,
-  children,
-  position = "item-aligned",
-  align = "center",
-  ...props
-}: React.ComponentProps<typeof SelectPrimitive.Content>) {
-  return (
-    <SelectPrimitive.Portal>
-      <SelectPrimitive.Content
-        data-slot="select-content"
-        data-align-trigger={position === "item-aligned"}
-        className={cn("relative z-50 max-h-(--radix-select-content-available-height) min-w-36 origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", position ==="popper"&&"data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1", className )}
-        position={position}
-        align={align}
-        {...props}
-      >
-        <SelectScrollUpButton />
-        <SelectPrimitive.Viewport
-          data-position={position}
-          className={cn(
-            "data-[position=popper]:h-(--radix-select-trigger-height) data-[position=popper]:w-full data-[position=popper]:min-w-(--radix-select-trigger-width)",
-            position === "popper" && ""
-          )}
-        >
-          {children}
-        </SelectPrimitive.Viewport>
-        <SelectScrollDownButton />
-      </SelectPrimitive.Content>
-    </SelectPrimitive.Portal>
-  )
-}
-
-function SelectLabel({
-  className,
-  ...props
-}: React.ComponentProps<typeof SelectPrimitive.Label>) {
-  return (
-    <SelectPrimitive.Label
-      data-slot="select-label"
-      className={cn("px-1.5 py-1 text-xs text-muted-foreground", className)}
-      {...props}
-    />
-  )
-}
-
-function SelectItem({
-  className,
-  children,
-  ...props
-}: React.ComponentProps<typeof SelectPrimitive.Item>) {
-  return (
-    <SelectPrimitive.Item
-      data-slot="select-item"
-      className={cn(
-        "relative flex w-full cursor-default items-center gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
-        className
-      )}
-      {...props}
-    >
-      <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center">
-        <SelectPrimitive.ItemIndicator>
-          <CheckIcon className="pointer-events-none" />
-        </SelectPrimitive.ItemIndicator>
-      </span>
-      <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
-    </SelectPrimitive.Item>
-  )
-}
-
-function SelectSeparator({
-  className,
-  ...props
-}: React.ComponentProps<typeof SelectPrimitive.Separator>) {
-  return (
-    <SelectPrimitive.Separator
-      data-slot="select-separator"
-      className={cn("pointer-events-none -mx-1 my-1 h-px bg-border", className)}
-      {...props}
-    />
-  )
-}
-
-function SelectScrollUpButton({
-  className,
-  ...props
-}: React.ComponentProps<typeof SelectPrimitive.ScrollUpButton>) {
-  return (
-    <SelectPrimitive.ScrollUpButton
-      data-slot="select-scroll-up-button"
-      className={cn(
-        "z-10 flex cursor-default items-center justify-center bg-popover py-1 [&_svg:not([class*='size-'])]:size-4",
-        className
-      )}
-      {...props}
-    >
-      <ChevronUpIcon
-      />
-    </SelectPrimitive.ScrollUpButton>
-  )
-}
-
-function SelectScrollDownButton({
-  className,
-  ...props
-}: React.ComponentProps<typeof SelectPrimitive.ScrollDownButton>) {
-  return (
-    <SelectPrimitive.ScrollDownButton
-      data-slot="select-scroll-down-button"
-      className={cn(
-        "z-10 flex cursor-default items-center justify-center bg-popover py-1 [&_svg:not([class*='size-'])]:size-4",
-        className
-      )}
-      {...props}
-    >
-      <ChevronDownIcon
-      />
-    </SelectPrimitive.ScrollDownButton>
-  )
-}
-
-export {
-  Select,
+import { haptic } from "@/lib/haptics"
+import { Field, FieldLabel } from "@ui-sdk/react/field"
+import { Listbox, ListboxItem } from "@ui-sdk/react/listbox"
+import {
+  Select as SdkSelect,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
-  SelectScrollDownButton,
-  SelectScrollUpButton,
-  SelectSeparator,
+  SelectList,
   SelectTrigger,
   SelectValue,
+} from "@ui-sdk/react/select"
+import { Icon } from "@/components/ui/icon"
+
+// A select drawn as a picker wheel: options sit on a drum that turns behind
+// a fixed lens, and whichever one stops in the lens is chosen. Scroll, swipe,
+// drag it with a mouse, click an option, or use the arrow keys and typing,
+// which the listbox already handles.
+const wheelRow = 32
+
+const wheelRadius = wheelRow / ((22 * Math.PI) / 180)
+
+const ridgePitch = 4
+
+// Ridges around the visible half of the drum, at a fixed pitch along it.
+const ridges = Array.from({ length: Math.ceil((Math.PI * wheelRadius) / ridgePitch) + 2 }, (_, i) => i)
+
+function Select({
+  label,
+  options,
+  value: controlled,
+  defaultValue,
+  onValueChange,
+}: {
+  label: string
+  options: { value: string; label: string }[]
+  value?: string
+  defaultValue?: string
+  onValueChange?: (value: string) => void
+}) {
+  const [own, setOwn] = React.useState(defaultValue ?? options[0]?.value)
+  const value = controlled ?? own
+  const setValue = (next: string) => {
+    setOwn(next)
+    if (next !== value) onValueChange?.(next)
+  }
+  const list = React.useRef<HTMLDivElement>(null)
+  const settle = React.useRef(0)
+  const drag = React.useRef<{ y: number; top: number; moved: boolean } | null>(null)
+  const dragged = React.useRef(false)
+  const ready = React.useRef(false)
+  const fromScroll = React.useRef(false)
+  const target = React.useRef<number | null>(null)
+  const chosen = React.useRef(value)
+  chosen.current = value
+  const index = Math.max(
+    0,
+    options.findIndex((option) => option.value === value),
+  )
+
+  // The rails' ridges and the row faces, repainted as the wheel turns, found
+  // once rather than queried on every scroll event.
+  const parts = React.useRef<{ ridges: HTMLElement[]; faces: HTMLElement[] } | null>(null)
+  const paint = () => {
+    const el = list.current
+    if (!el) return
+    parts.current ??= {
+      ridges: [...el.parentElement!.querySelectorAll<HTMLElement>("[data-ridge]")],
+      faces: [...el.querySelectorAll<HTMLElement>('[data-kit="wheel-face"]')],
+    }
+    const at = el.scrollTop / wheelRow
+    // The ridges on the rails sit around the drum's curve, so they crowd and
+    // thin toward its top and bottom as it turns away.
+    const phase = ((el.scrollTop % ridgePitch) + ridgePitch) % ridgePitch
+    const half = ridges.length / 2
+    for (const ridge of parts.current.ridges) {
+      const angle = ((Number(ridge.dataset.ridge) - half) * ridgePitch - phase) / wheelRadius
+      const visible = Math.abs(angle) < Math.PI / 2
+      ridge.style.transform = visible
+        ? `translateY(${(wheelRadius * Math.sin(angle)).toFixed(2)}px) scaleY(${Math.cos(angle).toFixed(3)})`
+        : "scaleY(0)"
+      ridge.style.opacity = visible ? (0.2 + 0.8 * Math.cos(angle)).toFixed(2) : "0"
+    }
+    parts.current.faces.forEach((face, i) => {
+      const d = i - at
+      const angle = Math.max(-90, Math.min(90, d * 22))
+      const rad = (angle * Math.PI) / 180
+      face.style.transform = `perspective(500px) translateY(${wheelRadius * Math.sin(rad) - d * wheelRow}px) translateZ(${wheelRadius * (Math.cos(rad) - 1)}px) rotateX(${-angle}deg)`
+      face.style.opacity = String(Math.max(0, 1 - Math.abs(d) * 0.28))
+    })
+  }
+
+  React.useLayoutEffect(() => {
+    const el = list.current!
+    if (fromScroll.current) {
+      fromScroll.current = false
+      return paint()
+    }
+    if (Math.abs(el.scrollTop - index * wheelRow) < 1 || drag.current) {
+      ready.current = true
+      return paint()
+    }
+    target.current = index * wheelRow
+    el.scrollTo({ top: target.current, behavior: ready.current ? "smooth" : "instant" })
+    ready.current = true
+    paint()
+  }, [index])
+
+  // The row in the lens is chosen as it passes, while the wheel turns.
+  const chooseCentered = () => {
+    const el = list.current
+    if (!el) return
+    const option = options[Math.max(0, Math.min(options.length - 1, Math.round(el.scrollTop / wheelRow)))]
+    if (option.value === chosen.current) return
+    chosen.current = option.value
+    haptic("selection")
+    fromScroll.current = true
+    setValue(option.value)
+  }
+
+  // Once the wheel stops, keyboard focus joins the row in the lens, so arrow
+  // keys continue from there. Moving it mid-turn would make the listbox
+  // scroll to the focused row and fight the drag.
+  const focusCentered = () => {
+    const el = list.current
+    if (!el || !el.contains(document.activeElement)) return
+    const row = el.querySelectorAll<HTMLElement>('[role="option"]')[Math.round(el.scrollTop / wheelRow)]
+    if (row && row !== document.activeElement) row.focus({ preventScroll: true })
+  }
+
+  // Scroll events can come faster than frames while the wheel is flung, so
+  // the repaint runs at most once a frame.
+  const painting = React.useRef(0)
+  const onScroll = () => {
+    if (!painting.current)
+      painting.current = requestAnimationFrame(() => {
+        painting.current = 0
+        paint()
+      })
+    const el = list.current!
+    // A scroll the wheel started itself, toward a chosen row, passes over
+    // others on the way; only scrolls the person makes choose as they pass.
+    if (target.current !== null) {
+      if (Math.abs(el.scrollTop - target.current) < 1) target.current = null
+    } else chooseCentered()
+    clearTimeout(settle.current)
+    settle.current = window.setTimeout(() => {
+      target.current = null
+      if (drag.current) return
+      chooseCentered()
+      focusCentered()
+    }, 120)
+  }
+
+  return (
+    <Field data-kit="field">
+      <FieldLabel data-kit="label">{label}</FieldLabel>
+      <div data-kit="wheel-frame" style={{ "--wheel-row": `${wheelRow}px` } as React.CSSProperties}>
+        {["left", "right"].map((side) => (
+          <div key={side} data-kit="wheel-rail" data-side={side} aria-hidden>
+            {ridges.map((i) => (
+              <i key={i} data-ridge={i} />
+            ))}
+          </div>
+        ))}
+        <Listbox
+          ref={list}
+          data-kit="wheel"
+          value={value}
+          onValueChange={(next) => next && setValue(next)}
+          onScroll={onScroll}
+          onPointerDown={(event) => {
+            dragged.current = false
+            if (event.pointerType !== "mouse" || event.button !== 0) return
+            drag.current = { y: event.clientY, top: event.currentTarget.scrollTop, moved: false }
+          }}
+          onPointerMove={(event) => {
+            const current = drag.current
+            if (!current) return
+            const dy = event.clientY - current.y
+            const el = event.currentTarget
+            if (!current.moved) {
+              if (Math.abs(dy) < 3) return
+              current.moved = true
+              el.setPointerCapture(event.pointerId)
+              el.dataset.dragging = ""
+            }
+            el.scrollTop = current.top - dy
+          }}
+          onPointerUp={(event) => {
+            const current = drag.current
+            drag.current = null
+            if (!current?.moved) return
+            const el = event.currentTarget
+            delete el.dataset.dragging
+            const option =
+              options[Math.max(0, Math.min(options.length - 1, Math.round(el.scrollTop / wheelRow)))]
+            el.scrollTo({ top: options.indexOf(option) * wheelRow, behavior: "smooth" })
+            setValue(option.value)
+            dragged.current = true
+          }}
+          onMouseDown={(event) => {
+            // Focusing a row on press scrolls it into view at once; focus it
+            // without scrolling, and let the wheel roll to it instead.
+            const option = (event.target as HTMLElement).closest<HTMLElement>('[role="option"]')
+            if (!option) return
+            event.preventDefault()
+            option.focus({ preventScroll: true })
+          }}
+          onClickCapture={(event) => {
+            // WebKit sends the click to the row the drag started on.
+            if (!dragged.current) return
+            dragged.current = false
+            event.preventDefault()
+            event.stopPropagation()
+          }}
+          onPointerCancel={() => {
+            drag.current = null
+          }}
+        >
+          {options.map((option) => (
+            <ListboxItem key={option.value} value={option.value} data-kit="wheel-item">
+              <span data-kit="wheel-face">{option.label}</span>
+            </ListboxItem>
+          ))}
+        </Listbox>
+      </div>
+    </Field>
+  )
 }
+
+// A compact select for rows and toolbars, where a wheel doesn't fit: a key
+// that opens a list on a popup screen.
+function SelectMenu({
+  label,
+  options,
+  value,
+  onValueChange,
+  placeholder,
+  disabled,
+}: {
+  /** Names the select for screen readers. */
+  label: string
+  options: { value: string; label: string }[]
+  value?: string
+  onValueChange?: (value: string) => void
+  placeholder?: string
+  disabled?: boolean
+}) {
+  return (
+    <SdkSelect
+      items={options}
+      value={value ?? null}
+      onValueChange={(next) => next !== null && onValueChange?.(next)}
+    >
+      <SelectTrigger data-kit="select-trigger" aria-label={label} disabled={disabled}>
+        <SelectValue placeholder={placeholder} />
+        <Icon name="chevron-down" />
+      </SelectTrigger>
+      <SelectContent data-kit="popup" align="start" sideOffset={8}>
+        <SelectList>
+          {options.map((option) => (
+            <SelectItem key={option.value} value={option.value} label={option.label} data-kit="option">
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectList>
+      </SelectContent>
+    </SdkSelect>
+  )
+}
+
+export { Select, SelectMenu }

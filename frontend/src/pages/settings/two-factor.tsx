@@ -5,7 +5,7 @@ import {toast} from 'sonner'
 import {totpDisable, totpEnable, totpEnroll, totpGet, totpQrcode, type Totp} from '@/client/generated'
 import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
-import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from '@/components/ui/card'
+import {Card} from '@/components/ui/card'
 import {Field, FieldDescription, FieldGroup, FieldLabel} from '@/components/ui/field'
 import {Input} from '@/components/ui/input'
 import {Skeleton} from '@/components/ui/skeleton'
@@ -65,37 +65,35 @@ function EnrollCard() {
 		onSuccess: () => queryClient.invalidateQueries({queryKey: totpKey}),
 	})
 	return (
-		<Card>
+		<Card
+			title="Set up an authenticator"
+			description="Works with any TOTP app, e.g. 1Password, Bitwarden, Google Authenticator or Aegis."
+			footer={
+				<div className="flex justify-end">
+					<Button type="submit" form="totp-enroll-form" tone="primary" disabled={!password || enroll.isPending}>
+						Start setup
+					</Button>
+				</div>
+			}
+		>
 			<form
+				id="totp-enroll-form"
 				className="grid gap-4"
 				onSubmit={e => {
 					e.preventDefault()
 					enroll.mutate()
 				}}
 			>
-				<CardHeader>
-					<CardTitle>Set up an authenticator</CardTitle>
-					<CardDescription>
-						Works with any TOTP app, e.g. 1Password, Bitwarden, Google Authenticator or Aegis.
-					</CardDescription>
-				</CardHeader>
-				<CardContent>
-					<Field>
-						<FieldLabel htmlFor="totp-enroll-password">Current password</FieldLabel>
-						<Input
-							id="totp-enroll-password"
-							type="password"
-							autoComplete="current-password"
-							value={password}
-							onChange={e => setPassword(e.target.value)}
-						/>
-					</Field>
-				</CardContent>
-				<CardFooter className="justify-end border-t">
-					<Button type="submit" disabled={!password || enroll.isPending}>
-						Start setup
-					</Button>
-				</CardFooter>
+				<Field>
+					<FieldLabel htmlFor="totp-enroll-password">Current password</FieldLabel>
+					<Input
+						id="totp-enroll-password"
+						type="password"
+						autoComplete="current-password"
+						value={password}
+						onChange={e => setPassword(e.target.value)}
+					/>
+				</Field>
 			</form>
 		</Card>
 	)
@@ -125,57 +123,62 @@ function ConfirmCard({secret}: {secret: string}) {
 		},
 	})
 	return (
-		<Card>
+		<Card
+			title="Scan the QR code"
+			description="Then enter the 6-digit code your app shows to finish."
+			footer={
+				<div className="flex justify-end">
+					<Button
+						type="submit"
+						form="totp-confirm-form"
+						tone="primary"
+						disabled={passcode.replace(/\s/g, '').length < 6 || !password || enable.isPending}
+					>
+						Enable two-factor
+					</Button>
+				</div>
+			}
+		>
 			<form
-				className="grid gap-4"
+				id="totp-confirm-form"
+				className="grid gap-6 sm:grid-cols-[auto_1fr]"
 				onSubmit={e => {
 					e.preventDefault()
 					enable.mutate()
 				}}
 			>
-				<CardHeader>
-					<CardTitle>Scan the QR code</CardTitle>
-					<CardDescription>Then enter the 6-digit code your app shows to finish.</CardDescription>
-				</CardHeader>
-				<CardContent className="grid gap-6 sm:grid-cols-[auto_1fr]">
-					<div className="flex size-44 items-center justify-center self-start justify-self-center overflow-hidden rounded-lg border bg-white p-2">
-						{qr ? <img src={qr} alt="TOTP QR code" className="size-full" /> : <Skeleton className="size-full" />}
-					</div>
-					<FieldGroup>
-						<Field>
-							<FieldLabel>Can't scan? Enter this key</FieldLabel>
-							<SecretBox value={secret} />
-						</Field>
-						<Field>
-							<FieldLabel htmlFor="totp-code">Code</FieldLabel>
-							<Input
-								id="totp-code"
-								inputMode="numeric"
-								autoComplete="one-time-code"
-								placeholder="123 456"
-								className="max-w-40 font-mono tracking-widest"
-								value={passcode}
-								onChange={e => setPasscode(e.target.value)}
-							/>
-						</Field>
-						<Field>
-							<FieldLabel htmlFor="totp-confirm-password">Current password</FieldLabel>
-							<Input
-								id="totp-confirm-password"
-								type="password"
-								autoComplete="current-password"
-								value={password}
-								onChange={e => setPassword(e.target.value)}
-							/>
-							<FieldDescription>You'll be signed out and asked for a code next time.</FieldDescription>
-						</Field>
-					</FieldGroup>
-				</CardContent>
-				<CardFooter className="justify-end border-t">
-					<Button type="submit" disabled={passcode.replace(/\s/g, '').length < 6 || !password || enable.isPending}>
-						Enable two-factor
-					</Button>
-				</CardFooter>
+				<div className="flex size-44 items-center justify-center self-start justify-self-center overflow-hidden rounded-lg border bg-white p-2">
+					{qr ? <img src={qr} alt="TOTP QR code" className="size-full" /> : <Skeleton className="size-full" />}
+				</div>
+				<FieldGroup>
+					<Field>
+						<FieldLabel>Can't scan? Enter this key</FieldLabel>
+						<SecretBox value={secret} />
+					</Field>
+					<Field>
+						<FieldLabel htmlFor="totp-code">Code</FieldLabel>
+						<Input
+							id="totp-code"
+							inputMode="numeric"
+							autoComplete="one-time-code"
+							placeholder="123 456"
+							className="max-w-40 font-mono tracking-widest"
+							value={passcode}
+							onChange={e => setPasscode(e.target.value)}
+						/>
+					</Field>
+					<Field>
+						<FieldLabel htmlFor="totp-confirm-password">Current password</FieldLabel>
+						<Input
+							id="totp-confirm-password"
+							type="password"
+							autoComplete="current-password"
+							value={password}
+							onChange={e => setPassword(e.target.value)}
+						/>
+						<FieldDescription>You'll be signed out and asked for a code next time.</FieldDescription>
+					</Field>
+				</FieldGroup>
 			</form>
 		</Card>
 	)
@@ -194,60 +197,65 @@ function DisableCard() {
 		},
 	})
 	return (
-		<Card>
-			<CardHeader>
-				<CardTitle>Your account is protected</CardTitle>
-				<CardDescription>Signing in requires your password and a code from your authenticator app.</CardDescription>
-			</CardHeader>
-			{open ? (
+		<Card
+			title="Your account is protected"
+			description="Signing in requires your password and a code from your authenticator app."
+			footer={
+				open ? (
+					<div className="flex justify-end gap-2">
+						<Button onClick={() => setOpen(false)}>Cancel</Button>
+						<Button
+							type="submit"
+							form="totp-disable-form"
+							tone="danger"
+							disabled={!password || !passcode || disable.isPending}
+						>
+							Disable two-factor
+						</Button>
+					</div>
+				) : (
+					<div className="flex justify-end">
+						<Button onClick={() => setOpen(true)}>
+							<ShieldOffIcon />
+							Disable
+						</Button>
+					</div>
+				)
+			}
+		>
+			{open && (
 				<form
+					id="totp-disable-form"
 					className="grid gap-4"
 					onSubmit={e => {
 						e.preventDefault()
 						disable.mutate()
 					}}
 				>
-					<CardContent>
-						<FieldGroup>
-							<Field>
-								<FieldLabel htmlFor="totp-disable-password">Current password</FieldLabel>
-								<Input
-									id="totp-disable-password"
-									type="password"
-									autoComplete="current-password"
-									value={password}
-									onChange={e => setPassword(e.target.value)}
-								/>
-							</Field>
-							<Field>
-								<FieldLabel htmlFor="totp-disable-code">Current code</FieldLabel>
-								<Input
-									id="totp-disable-code"
-									inputMode="numeric"
-									autoComplete="one-time-code"
-									className="max-w-40 font-mono tracking-widest"
-									value={passcode}
-									onChange={e => setPasscode(e.target.value)}
-								/>
-							</Field>
-						</FieldGroup>
-					</CardContent>
-					<CardFooter className="justify-end gap-2 border-t">
-						<Button type="button" variant="outline" onClick={() => setOpen(false)}>
-							Cancel
-						</Button>
-						<Button type="submit" variant="destructive" disabled={!password || !passcode || disable.isPending}>
-							Disable two-factor
-						</Button>
-					</CardFooter>
+					<FieldGroup>
+						<Field>
+							<FieldLabel htmlFor="totp-disable-password">Current password</FieldLabel>
+							<Input
+								id="totp-disable-password"
+								type="password"
+								autoComplete="current-password"
+								value={password}
+								onChange={e => setPassword(e.target.value)}
+							/>
+						</Field>
+						<Field>
+							<FieldLabel htmlFor="totp-disable-code">Current code</FieldLabel>
+							<Input
+								id="totp-disable-code"
+								inputMode="numeric"
+								autoComplete="one-time-code"
+								className="max-w-40 font-mono tracking-widest"
+								value={passcode}
+								onChange={e => setPasscode(e.target.value)}
+							/>
+						</Field>
+					</FieldGroup>
 				</form>
-			) : (
-				<CardFooter className="justify-end border-t">
-					<Button variant="outline" onClick={() => setOpen(true)}>
-						<ShieldOffIcon />
-						Disable
-					</Button>
-				</CardFooter>
 			)}
 		</Card>
 	)

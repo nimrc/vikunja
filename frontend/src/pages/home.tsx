@@ -2,7 +2,7 @@ import {useMemo} from 'react'
 import {Link} from 'react-router'
 import {AlertTriangleIcon, ArrowRightIcon, CalendarDaysIcon, CircleDotIcon, FolderPlusIcon, SparklesIcon} from 'lucide-react'
 import {Button} from '@/components/ui/button'
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card'
+import {Card} from '@/components/ui/card'
 import {Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle} from '@/components/ui/empty'
 import {Skeleton} from '@/components/ui/skeleton'
 import {ColorDot} from '@/components/color-picker'
@@ -77,44 +77,36 @@ export default function Home() {
 			</div>
 
 			<div className="grid gap-6 lg:grid-cols-5">
-				<Card className="lg:col-span-3">
-					<CardHeader className="flex flex-row items-center justify-between">
-						<div className="flex flex-col gap-1">
-							<CardTitle>Up next</CardTitle>
-							<CardDescription>Overdue and due within a week</CardDescription>
-						</div>
-						<Button variant="ghost" size="sm" asChild>
-							<Link to="/tasks/upcoming">
-								View all
-								<ArrowRightIcon />
-							</Link>
+				<Card
+					className="lg:col-span-3"
+					title="Up next"
+					description="Overdue and due within a week"
+					action={
+						<Button size="sm" render={<Link to="/tasks/upcoming" />}>
+							View all
+							<ArrowRightIcon />
 						</Button>
-					</CardHeader>
-					<CardContent className="px-2">
-						{upNext.isPending ? (
-							<ListSkeleton />
-						) : upNext.data?.items?.length ? (
-							upNext.data.items.map(t => <TaskRow key={t.id} task={t} project={projectById.get(t.project_id)} showProject />)
-						) : (
-							<Empty className="py-8">
-								<EmptyHeader>
-									<EmptyMedia variant="icon">
-										<SparklesIcon />
-									</EmptyMedia>
-									<EmptyTitle>You're all caught up</EmptyTitle>
-									<EmptyDescription>Nothing is due this week.</EmptyDescription>
-								</EmptyHeader>
-							</Empty>
-						)}
-					</CardContent>
+					}
+				>
+					{upNext.isPending ? (
+						<ListSkeleton />
+					) : upNext.data?.items?.length ? (
+						upNext.data.items.map(t => <TaskRow key={t.id} task={t} project={projectById.get(t.project_id)} showProject />)
+					) : (
+						<Empty className="py-8">
+							<EmptyHeader>
+								<EmptyMedia variant="icon">
+									<SparklesIcon />
+								</EmptyMedia>
+								<EmptyTitle>You're all caught up</EmptyTitle>
+								<EmptyDescription>Nothing is due this week.</EmptyDescription>
+							</EmptyHeader>
+						</Empty>
+					)}
 				</Card>
 
-				<Card className="lg:col-span-2">
-					<CardHeader>
-						<CardTitle>Recently updated</CardTitle>
-						<CardDescription>Open tasks you or others touched last</CardDescription>
-					</CardHeader>
-					<CardContent className="flex flex-col px-2">
+				<Card className="lg:col-span-2" title="Recently updated" description="Open tasks you or others touched last">
+					<div className="flex flex-col">
 						{recent.isPending ? (
 							<ListSkeleton />
 						) : (
@@ -122,7 +114,7 @@ export default function Home() {
 								<TaskRow key={t.id} task={t} project={projectById.get(t.project_id)} showProject />
 							))
 						)}
-					</CardContent>
+					</div>
 				</Card>
 			</div>
 
@@ -131,16 +123,14 @@ export default function Home() {
 					<h2 className="text-lg font-semibold tracking-tight">Projects</h2>
 					<div className="flex gap-1">
 						<ProjectCreateDialog>
-							<Button variant="outline" size="sm">
+							<Button size="sm">
 								<FolderPlusIcon />
 								New project
 							</Button>
 						</ProjectCreateDialog>
-						<Button variant="ghost" size="sm" asChild>
-							<Link to="/projects">
-								All projects
-								<ArrowRightIcon />
-							</Link>
+						<Button size="sm" render={<Link to="/projects" />}>
+							All projects
+							<ArrowRightIcon />
 						</Button>
 					</div>
 				</div>
@@ -184,20 +174,18 @@ function StatCard({
 }) {
 	return (
 		<Link to={to} className="group">
-			<Card className="gap-1 py-4 transition-colors group-hover:bg-muted/40 sm:gap-2 sm:py-5">
-				<CardHeader className="flex flex-row items-center justify-between px-4 sm:px-6">
-					<CardDescription className="truncate">{title}</CardDescription>
-					<Icon className={cn('hidden size-4 text-muted-foreground sm:block', tone === 'danger' && 'text-destructive')} />
-				</CardHeader>
-				<CardContent className="px-4 sm:px-6">
-					{pending ? (
-						<Skeleton className="h-8 w-12" />
-					) : (
-						<span className={cn('text-2xl font-semibold tabular-nums tracking-tight sm:text-3xl', tone === 'danger' && 'text-destructive')}>
-							{value ?? 0}
-						</span>
-					)}
-				</CardContent>
+			<Card
+				className="transition-colors group-hover:bg-muted/40"
+				description={<span className="block truncate">{title}</span>}
+				action={<Icon className={cn('hidden size-4 text-muted-foreground sm:block', tone === 'danger' && 'text-destructive')} />}
+			>
+				{pending ? (
+					<Skeleton className="block h-8 w-12" />
+				) : (
+					<span className={cn('text-2xl font-semibold tabular-nums tracking-tight sm:text-3xl', tone === 'danger' && 'text-destructive')}>
+						{value ?? 0}
+					</span>
+				)}
 			</Card>
 		</Link>
 	)

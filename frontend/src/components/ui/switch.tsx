@@ -1,29 +1,82 @@
 import * as React from "react"
-import { cn } from "cn"
-import { Switch as SwitchPrimitive } from "radix-ui"
+import { haptic } from "@/lib/haptics"
+import { Switch as SdkSwitch, SwitchThumb } from "@ui-sdk/react/switch"
 
+// A switch you can click or drag. Dragging, the thumb follows the pointer and
+// settles on whichever side is nearer when let go; the click that follows a
+// drag is ignored, so it doesn't toggle a second time.
 function Switch({
-  className,
-  size = "default",
-  ...props
-}: React.ComponentProps<typeof SwitchPrimitive.Root> & {
-  size?: "sm" | "default"
+  label,
+  checked: controlled,
+  defaultChecked,
+  disabled,
+  onCheckedChange,
+}: {
+  label: string
+  checked?: boolean
+  defaultChecked?: boolean
+  disabled?: boolean
+  onCheckedChange?: (checked: boolean) => void
 }) {
+  const [own, setChecked] = React.useState(Boolean(defaultChecked))
+  const checked = controlled ?? own
+  const drag = React.useRef<{ x: number; moved: boolean; from: boolean; at: number } | null>(null)
+  const ignoreClick = React.useRef(false)
+  // Clicked or dragged across, the switch snaps over with one firm tap.
+  const set = (next: boolean) => {
+    if (next !== checked) haptic("medium")
+    setChecked(next)
+    onCheckedChange?.(next)
+  }
+
   return (
-    <SwitchPrimitive.Root
-      data-slot="switch"
-      data-size={size}
-      className={cn(
-        "peer group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent transition-all outline-none group-has-[:focus-visible]/field-label:border-transparent group-has-[:focus-visible]/field-label:ring-0 after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-[size=default]:h-[18.4px] data-[size=default]:w-[32px] data-[size=sm]:h-[14px] data-[size=sm]:w-[24px] dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-checked:bg-primary data-unchecked:bg-input dark:data-unchecked:bg-input/80 data-disabled:cursor-not-allowed data-disabled:opacity-50",
-        className
-      )}
-      {...props}
-    >
-      <SwitchPrimitive.Thumb
-        data-slot="switch-thumb"
-        className="pointer-events-none block rounded-full bg-background ring-0 transition-transform group-data-[size=default]/switch:size-4 group-data-[size=sm]/switch:size-3 group-data-[size=default]/switch:data-checked:translate-x-[calc(100%-2px)] group-data-[size=sm]/switch:data-checked:translate-x-[calc(100%-2px)] dark:data-checked:bg-primary-foreground group-data-[size=default]/switch:data-unchecked:translate-x-0 group-data-[size=sm]/switch:data-unchecked:translate-x-0 dark:data-unchecked:bg-foreground"
-      />
-    </SwitchPrimitive.Root>
+    <label data-kit="switch-row">
+      <span data-kit="label">{label}</span>
+      <SdkSwitch
+        data-kit="switch"
+        checked={checked}
+        disabled={disabled}
+        onCheckedChange={(next) => {
+          if (ignoreClick.current) return
+          set(next)
+        }}
+        onPointerDown={(event) => {
+          if (event.button !== 0 || disabled) return
+          drag.current = { x: event.clientX, moved: false, from: checked, at: checked ? 1 : 0 }
+        }}
+        onPointerMove={(event) => {
+          const current = drag.current
+          if (!current) return
+          const dx = event.clientX - current.x
+          const el = event.currentTarget
+          if (!current.moved) {
+            if (Math.abs(dx) < 3) return
+            current.moved = true
+            el.setPointerCapture(event.pointerId)
+            el.dataset.dragging = ""
+          }
+          const thumb = el.querySelector<HTMLElement>('[data-kit="switch-thumb"]')!
+          const travel = el.clientWidth - thumb.offsetWidth - thumb.offsetLeft * 2
+          current.at = Math.min(1, Math.max(0, (current.from ? 1 : 0) + dx / travel))
+          el.style.setProperty("--switch-drag-x", `${current.at * travel}px`)
+        }}
+        onPointerUp={(event) => {
+          const current = drag.current
+          drag.current = null
+          if (!current?.moved) return
+          const el = event.currentTarget
+          delete el.dataset.dragging
+          el.style.removeProperty("--switch-drag-x")
+          set(current.at > 0.5)
+          ignoreClick.current = true
+          setTimeout(() => {
+            ignoreClick.current = false
+          })
+        }}
+      >
+        <SwitchThumb data-kit="switch-thumb" />
+      </SdkSwitch>
+    </label>
   )
 }
 

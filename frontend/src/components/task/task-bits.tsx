@@ -2,11 +2,11 @@ import {useMutation} from '@tanstack/react-query'
 import {CalendarIcon, FlagIcon, MessageSquareIcon, PaperclipIcon, RepeatIcon} from 'lucide-react'
 import {toast} from 'sonner'
 import {tasksUpdate, type Label, type Task, type User} from '@/client/generated'
-import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
+import {Avatar} from '@/components/ui/avatar'
 import {Badge} from '@/components/ui/badge'
-import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip'
+import {Tooltip} from '@/components/ui/tooltip'
 import {cn} from '@/lib/utils'
-import {contrastText, cssColor, displayName, formatDue, initials, isOverdue, parseDate, priorityLabel} from '@/lib/format'
+import {contrastText, cssColor, displayName, formatDue, isOverdue, parseDate, priorityLabel} from '@/lib/format'
 import {useAvatarSrc} from '@/lib/avatar'
 import {invalidateTasks, keys, patchCachedTask, queryClient} from '@/lib/queries'
 
@@ -14,7 +14,7 @@ export function LabelBadge({label, className}: {label: Label; className?: string
 	const bg = cssColor(label.hex_color)
 	return (
 		<Badge
-			variant="secondary"
+			tone="neutral"
 			className={cn('h-5 rounded-md px-1.5 text-[11px] font-medium', className)}
 			style={bg ? {background: bg, color: contrastText(label.hex_color)} : undefined}
 		>
@@ -63,14 +63,12 @@ export function DueBadge({task, className}: {task: Task; className?: string}) {
 export function UserAvatar({user, className}: {user: User; className?: string}) {
 	const src = useAvatarSrc(user, 48)
 	return (
-		<Tooltip>
-			<TooltipTrigger asChild>
-				<Avatar className={cn('size-6 border-2 border-background', className)}>
-					<AvatarImage src={src} alt="" />
-					<AvatarFallback className="text-[10px]">{initials(user)}</AvatarFallback>
-				</Avatar>
-			</TooltipTrigger>
-			<TooltipContent>{displayName(user)}</TooltipContent>
+		<Tooltip
+			label={displayName(user)}
+			render={<span />}
+			className={cn('inline-flex rounded-full border-2 border-background', className)}
+		>
+			<Avatar name={displayName(user)} src={src} size="sm" />
 		</Tooltip>
 	)
 }

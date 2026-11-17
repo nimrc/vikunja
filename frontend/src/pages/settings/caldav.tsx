@@ -1,12 +1,12 @@
 import {useState} from 'react'
 import {useMutation, useQuery} from '@tanstack/react-query'
-import {CalendarSyncIcon, PlusIcon, Trash2Icon} from 'lucide-react'
+import {PlusIcon, Trash2Icon} from 'lucide-react'
 import {toast} from 'sonner'
 import {caldavTokensCreate, caldavTokensDelete, caldavTokensList, type Token} from '@/client/generated'
 import {ConfirmDialog} from '@/components/confirm-dialog'
-import {Alert, AlertDescription, AlertTitle} from '@/components/ui/alert'
+import {Alert} from '@/components/ui/alert'
 import {Button} from '@/components/ui/button'
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card'
+import {Card} from '@/components/ui/card'
 import {Skeleton} from '@/components/ui/skeleton'
 import {API_BASE} from '@/lib/api'
 import {formatDateTime, parseDate, relative} from '@/lib/format'
@@ -45,60 +45,54 @@ export default function Caldav() {
 		<>
 			<SettingsHeader title="CalDAV" description="Sync your tasks with calendar and reminder apps like Thunderbird, DAVx⁵ or Apple Reminders." />
 			<div className="grid gap-6">
-				<Card>
-					<CardHeader>
-						<CardTitle>Server URL</CardTitle>
-						<CardDescription>
+				<Card
+					title="Server URL"
+					description={
+						<>
 							Sign in with your username <span className="font-medium text-foreground">{user?.username}</span> and a
 							CalDAV token as the password.
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<SecretBox value={url} />
-					</CardContent>
+						</>
+					}
+				>
+					<SecretBox value={url} />
 				</Card>
 
-				<Card>
-					<CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
-						<div className="grid gap-1.5">
-							<CardTitle>Tokens</CardTitle>
-							<CardDescription>Use one token per device so you can revoke them separately.</CardDescription>
-						</div>
-						<Button variant="outline" disabled={create.isPending} onClick={() => create.mutate()}>
+				<Card
+					title="Tokens"
+					description="Use one token per device so you can revoke them separately."
+					action={
+						<Button disabled={create.isPending} onClick={() => create.mutate()}>
 							<PlusIcon />
 							Create token
 						</Button>
-					</CardHeader>
-					<CardContent className="grid gap-4 px-0">
+					}
+				>
+					<div className="grid gap-4">
 						{created?.token && (
-							<div className="px-4">
-								<Alert>
-									<CalendarSyncIcon />
-									<AlertTitle>Copy your new token now</AlertTitle>
-									<AlertDescription className="grid gap-2">
-										<span>It won't be shown again.</span>
-										<SecretBox value={created.token} className="w-full" />
-									</AlertDescription>
-								</Alert>
-							</div>
+							<Alert title="Copy your new token now">
+								<div className="grid gap-2">
+									<span>It won't be shown again.</span>
+									<SecretBox value={created.token} className="w-full" />
+								</div>
+							</Alert>
 						)}
 						{isLoading ? (
-							<div className="grid gap-2 px-4">
+							<div className="grid gap-2">
 								<Skeleton className="h-10" />
 							</div>
 						) : !tokens?.length ? (
-							<p className="px-4 text-sm text-muted-foreground">No CalDAV tokens yet.</p>
+							<p className="text-sm text-muted-foreground">No CalDAV tokens yet.</p>
 						) : (
-							<ul className="-mb-4 divide-y border-t">
+							<ul className="divide-y border-t">
 								{tokens.map(t => {
 									const c = parseDate(t.created)
 									return (
-										<li key={t.id} className="flex items-center gap-3 px-4 py-3 text-sm">
+										<li key={t.id} className="flex items-center gap-3 py-3 text-sm">
 											<span className="font-mono text-xs text-muted-foreground">#{t.id}</span>
 											<span className="flex-1" title={c ? formatDateTime(c) : undefined}>
 												Created {c ? relative(c) : ''}
 											</span>
-											<Button variant="ghost" size="icon-sm" aria-label="Delete token" onClick={() => setDeleting(t)}>
+											<Button round aria-label="Delete token" onClick={() => setDeleting(t)}>
 												<Trash2Icon />
 											</Button>
 										</li>
@@ -106,7 +100,7 @@ export default function Caldav() {
 								})}
 							</ul>
 						)}
-					</CardContent>
+					</div>
 				</Card>
 			</div>
 			<ConfirmDialog

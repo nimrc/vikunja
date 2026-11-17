@@ -1,16 +1,6 @@
 import {useEffect, useState, type ReactNode} from 'react'
 import type {Task} from '@/client/generated'
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import {Spinner} from '@/components/ui/spinner'
+import {AlertDialog} from '@/components/ui/alert-dialog'
 import {cn} from '@/lib/utils'
 
 /** The API adds max_permission (0 read, 1 write, 2 admin) to single reads. */
@@ -77,38 +67,15 @@ export function ConfirmDialog({
 	confirmLabel?: string
 	onConfirm: () => Promise<unknown> | unknown
 }) {
-	const [busy, setBusy] = useState(false)
 	return (
-		<AlertDialog open={open} onOpenChange={onOpenChange}>
-			<AlertDialogContent>
-				<AlertDialogHeader>
-					<AlertDialogTitle>{title}</AlertDialogTitle>
-					{description && <AlertDialogDescription>{description}</AlertDialogDescription>}
-				</AlertDialogHeader>
-				<AlertDialogFooter>
-					<AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
-					<AlertDialogAction
-						variant="destructive"
-						disabled={busy}
-						onClick={async e => {
-							e.preventDefault()
-							setBusy(true)
-							try {
-								await onConfirm()
-								onOpenChange(false)
-							} catch {
-								// reported by the caller
-							} finally {
-								setBusy(false)
-							}
-						}}
-					>
-						{busy && <Spinner />}
-						{confirmLabel}
-					</AlertDialogAction>
-				</AlertDialogFooter>
-			</AlertDialogContent>
-		</AlertDialog>
+		<AlertDialog
+			open={open}
+			onOpenChange={onOpenChange}
+			title={title}
+			description={description}
+			confirm={confirmLabel}
+			onConfirm={onConfirm}
+		/>
 	)
 }
 

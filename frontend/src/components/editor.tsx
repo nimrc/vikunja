@@ -26,7 +26,7 @@ import {Kbd} from '@/components/ui/kbd'
 import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover'
 import {Separator} from '@/components/ui/separator'
 import {Spinner} from '@/components/ui/spinner'
-import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip'
+import {Tooltip} from '@/components/ui/tooltip'
 import {cn} from '@/lib/utils'
 import './editor.css'
 
@@ -241,11 +241,11 @@ export function RichTextEditor({
 							<span>to save</span>
 						</span>
 						{(!composer || !empty) && (
-							<Button variant="ghost" size="sm" onClick={cancel} disabled={busy}>
+							<Button size="sm" onClick={cancel} disabled={busy}>
 								{composer ? 'Clear' : 'Cancel'}
 							</Button>
 						)}
-						<Button size="sm" onClick={() => void save()} disabled={busy || (composer && empty)}>
+						<Button tone="primary" size="sm" onClick={() => void save()} disabled={busy || (composer && empty)}>
 							{busy && <Spinner />}
 							{saveLabel ?? (composer ? 'Comment' : 'Save')}
 						</Button>
@@ -282,22 +282,14 @@ function ToolButton({
 	children: ReactNode
 }) {
 	return (
-		<Tooltip>
-			<TooltipTrigger asChild>
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon-sm"
-					aria-label={label}
-					aria-pressed={active}
-					onMouseDown={e => e.preventDefault()}
-					onClick={onClick}
-					className={cn('text-muted-foreground', active && 'bg-muted text-foreground')}
-				>
-					{children}
-				</Button>
-			</TooltipTrigger>
-			<TooltipContent>{label}</TooltipContent>
+		<Tooltip
+			label={label}
+			aria-pressed={active}
+			onMouseDown={e => e.preventDefault()}
+			onClick={onClick}
+			className={cn('text-muted-foreground', active && 'bg-muted text-foreground')}
+		>
+			{children}
 		</Tooltip>
 	)
 }
@@ -384,22 +376,16 @@ function LinkButton({editor}: {editor: Editor}) {
 				setOpen(o)
 			}}
 		>
-			<Tooltip>
-				<TooltipTrigger asChild>
-					<PopoverTrigger asChild>
-						<Button
-							type="button"
-							variant="ghost"
-							size="icon-sm"
-							aria-label="Link"
-							onMouseDown={e => e.preventDefault()}
-							className={cn('text-muted-foreground', editor.isActive('link') && 'bg-muted text-foreground')}
-						>
-							<LinkIcon />
-						</Button>
-					</PopoverTrigger>
-				</TooltipTrigger>
-				<TooltipContent>Link</TooltipContent>
+			<Tooltip
+				label="Link"
+				render={
+					<PopoverTrigger
+						onMouseDown={e => e.preventDefault()}
+						className={cn('text-muted-foreground', editor.isActive('link') && 'bg-muted text-foreground')}
+					/>
+				}
+			>
+				<LinkIcon />
 			</Tooltip>
 			<PopoverContent className="w-80 p-2" align="start">
 				<form
@@ -410,7 +396,7 @@ function LinkButton({editor}: {editor: Editor}) {
 					}}
 				>
 					<Input autoFocus placeholder="https://…" value={href} onChange={e => setHref(e.target.value)} className="h-8" />
-					<Button type="submit" size="sm">
+					<Button type="submit" tone="primary" size="sm">
 						{href.trim() ? 'Apply' : 'Remove'}
 					</Button>
 				</form>

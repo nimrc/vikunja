@@ -1,109 +1,50 @@
-import * as React from "react"
-import { cn } from "cn"
-import { Avatar as AvatarPrimitive } from "radix-ui"
+import { Avatar as SdkAvatar, AvatarFallback, AvatarImage } from "@ui-sdk/react/avatar"
 
-function Avatar({
-  className,
-  size = "default",
-  ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Root> & {
-  size?: "default" | "sm" | "lg"
-}) {
+// An avatar is a small LED matrix behind a round lens. The lit pattern is
+// worked out from the name and mirrored, so each person has their own glyph
+// and it never changes. The name itself is there for screen readers. A
+// picture, when there is one, sits behind the same lens.
+const matrix = 7
+
+function glyph(name: string) {
+  let hash = 2166136261
+  for (const char of name) hash = Math.imul(hash ^ char.charCodeAt(0), 16777619)
+  const lit: boolean[] = []
+  for (let row = 0; row < matrix; row++) {
+    for (let col = 0; col < matrix; col++) {
+      const half = col < 4 ? col : matrix - 1 - col
+      const bit = (hash >>> ((row * 4 + half) % 31)) & 1
+      const inside = Math.hypot(row - 3, col - 3) <= 3.2
+      lit.push(inside && (bit === 1 || (row === 3 && half === 3)))
+    }
+  }
+  return lit
+}
+
+function Avatar({ name, src, size }: { name: string; src?: string; size?: "sm" | "lg" }) {
+  const dots = glyph(name)
   return (
-    <AvatarPrimitive.Root
-      data-slot="avatar"
-      data-size={size}
-      className={cn(
-        "group/avatar relative flex size-8 shrink-0 rounded-full select-none after:absolute after:inset-0 after:rounded-full after:border after:border-border after:mix-blend-darken data-[size=lg]:size-10 data-[size=sm]:size-6 dark:after:mix-blend-lighten",
-        className
+    <SdkAvatar data-kit="avatar" data-size={size}>
+      {src && (
+        <AvatarImage
+          src={src}
+          alt={name}
+          style={{ gridArea: "1 / 1", width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }}
+        />
       )}
-      {...props}
-    />
+      <AvatarFallback data-kit="avatar-fallback">
+        <span data-kit="avatar-matrix" aria-hidden>
+          {dots.map((on, i) => {
+            const row = Math.floor(i / matrix)
+            const col = i % matrix
+            if (Math.hypot(row - 3, col - 3) > 3.2) return <i key={i} data-off-lens />
+            return <i key={i} data-on={on || undefined} />
+          })}
+        </span>
+        <span data-kit="visually-hidden">{name}</span>
+      </AvatarFallback>
+    </SdkAvatar>
   )
 }
 
-function AvatarImage({
-  className,
-  ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Image>) {
-  return (
-    <AvatarPrimitive.Image
-      data-slot="avatar-image"
-      className={cn(
-        "aspect-square size-full rounded-full object-cover",
-        className
-      )}
-      {...props}
-    />
-  )
-}
-
-function AvatarFallback({
-  className,
-  ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Fallback>) {
-  return (
-    <AvatarPrimitive.Fallback
-      data-slot="avatar-fallback"
-      className={cn(
-        "flex size-full items-center justify-center rounded-full bg-muted text-sm text-muted-foreground group-data-[size=sm]/avatar:text-xs",
-        className
-      )}
-      {...props}
-    />
-  )
-}
-
-function AvatarBadge({ className, ...props }: React.ComponentProps<"span">) {
-  return (
-    <span
-      data-slot="avatar-badge"
-      className={cn(
-        "absolute right-0 bottom-0 z-10 inline-flex items-center justify-center rounded-full bg-primary text-primary-foreground bg-blend-color ring-2 ring-background select-none",
-        "group-data-[size=sm]/avatar:size-2 group-data-[size=sm]/avatar:[&>svg]:hidden",
-        "group-data-[size=default]/avatar:size-2.5 group-data-[size=default]/avatar:[&>svg]:size-2",
-        "group-data-[size=lg]/avatar:size-3 group-data-[size=lg]/avatar:[&>svg]:size-2",
-        className
-      )}
-      {...props}
-    />
-  )
-}
-
-function AvatarGroup({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="avatar-group"
-      className={cn(
-        "group/avatar-group flex -space-x-2 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:ring-background",
-        className
-      )}
-      {...props}
-    />
-  )
-}
-
-function AvatarGroupCount({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="avatar-group-count"
-      className={cn(
-        "relative flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm text-muted-foreground ring-2 ring-background group-has-data-[size=lg]/avatar-group:size-10 group-has-data-[size=sm]/avatar-group:size-6 [&>svg]:size-4 group-has-data-[size=lg]/avatar-group:[&>svg]:size-5 group-has-data-[size=sm]/avatar-group:[&>svg]:size-3",
-        className
-      )}
-      {...props}
-    />
-  )
-}
-
-export {
-  Avatar,
-  AvatarImage,
-  AvatarFallback,
-  AvatarGroup,
-  AvatarGroupCount,
-  AvatarBadge,
-}
+export { Avatar }

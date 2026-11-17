@@ -64,7 +64,7 @@ export default function Sessions() {
 				description="Devices currently signed in to your account. API tokens are managed separately."
 				action={
 					others.length > 0 ? (
-						<Button variant="outline" disabled={revokeOthers.isPending} onClick={() => revokeOthers.mutate()}>
+						<Button disabled={revokeOthers.isPending} onClick={() => revokeOthers.mutate()}>
 							<LogOutIcon />
 							Sign out other sessions
 						</Button>
@@ -104,7 +104,7 @@ function SessionRow({session, current, busy, onRevoke}: {session: Session; curre
 					<span className="truncate text-sm font-medium" title={session.device_info}>
 						{label}
 					</span>
-					{current && <Badge variant="secondary">This device</Badge>}
+					{current && <Badge tone="neutral">This device</Badge>}
 				</div>
 				<span className="truncate text-xs text-muted-foreground">
 					{session.ip_address}
@@ -113,7 +113,7 @@ function SessionRow({session, current, busy, onRevoke}: {session: Session; curre
 				</span>
 			</div>
 			{!current && (
-				<Button variant="ghost" size="sm" disabled={busy} onClick={onRevoke}>
+				<Button size="sm" disabled={busy} onClick={onRevoke}>
 					Sign out
 				</Button>
 			)}

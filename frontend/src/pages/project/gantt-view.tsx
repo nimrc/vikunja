@@ -7,7 +7,6 @@ import {projectViewTasksList, type Project, type ProjectView, type Task} from '@
 import {Button} from '@/components/ui/button'
 import {Calendar} from '@/components/ui/calendar'
 import {Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle} from '@/components/ui/empty'
-import {Label} from '@/components/ui/label'
 import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover'
 import {Skeleton} from '@/components/ui/skeleton'
 import {Spinner} from '@/components/ui/spinner'
@@ -83,11 +82,9 @@ export function GanttView({project, view}: {project: Project; view: ProjectView}
 						if (o) setDraft({from: range.from, to: range.to})
 					}}
 				>
-					<PopoverTrigger asChild>
-						<Button variant="outline" size="sm" className="font-normal">
-							<CalendarRangeIcon />
-							{rangeLabel(range.from, range.to)}
-						</Button>
+					<PopoverTrigger render={<Button size="sm" className="font-normal" />}>
+						<CalendarRangeIcon />
+						{rangeLabel(range.from, range.to)}
 					</PopoverTrigger>
 					<PopoverContent className="w-auto p-0" align="start">
 						<Calendar
@@ -99,7 +96,6 @@ export function GanttView({project, view}: {project: Project; view: ProjectView}
 						/>
 						<div className="flex items-center justify-end gap-2 border-t p-2">
 							<Button
-								variant="ghost"
 								size="sm"
 								onClick={() => {
 									setRange(defaultRange())
@@ -109,6 +105,7 @@ export function GanttView({project, view}: {project: Project; view: ProjectView}
 								Reset
 							</Button>
 							<Button
+								tone="primary"
 								size="sm"
 								disabled={!draft?.from || !draft?.to}
 								onClick={() => {
@@ -121,12 +118,11 @@ export function GanttView({project, view}: {project: Project; view: ProjectView}
 						</div>
 					</PopoverContent>
 				</Popover>
-				<div className="flex items-center gap-2">
-					<Switch id={`gantt-undated-${view.id}`} checked={showUndated} onCheckedChange={setShowUndated} />
-					<Label htmlFor={`gantt-undated-${view.id}`} className="text-sm font-normal">
-						Show tasks without dates
-					</Label>
-				</div>
+				<Switch
+					label="Show tasks without dates"
+					checked={showUndated}
+					onCheckedChange={setShowUndated}
+				/>
 				<div className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
 					{q.isFetching && !q.isPending && <Spinner className="size-3.5" />}
 					{q.data && `${q.data.length} ${q.data.length === 1 ? 'task' : 'tasks'}`}
@@ -147,7 +143,7 @@ export function GanttView({project, view}: {project: Project; view: ProjectView}
 							<EmptyTitle>Couldn’t load tasks</EmptyTitle>
 							<EmptyDescription>{q.error.message}</EmptyDescription>
 						</EmptyHeader>
-						<Button variant="outline" size="sm" onClick={() => q.refetch()}>
+						<Button size="sm" onClick={() => q.refetch()}>
 							Retry
 						</Button>
 					</Empty>

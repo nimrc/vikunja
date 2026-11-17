@@ -21,15 +21,15 @@ import {ConfirmDialog} from '@/components/confirm-dialog'
 import {UserLine, UserPicker} from '@/components/user-picker'
 import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card'
+import {Card} from '@/components/ui/card'
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from '@/components/ui/command'
-import {Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle} from '@/components/ui/dialog'
+import {Dialog, DialogActions, DialogContent, DialogDescription, DialogTitle} from '@/components/ui/dialog'
 import {Field, FieldDescription, FieldGroup, FieldLabel} from '@/components/ui/field'
 import {Input} from '@/components/ui/input'
 import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover'
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select'
+import {SelectMenu} from '@/components/ui/select'
 import {Skeleton} from '@/components/ui/skeleton'
-import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip'
+import {Tooltip} from '@/components/ui/tooltip'
 import {displayName, parseDate, relative} from '@/lib/format'
 import {useServerInfo} from '@/lib/info'
 import {queryClient, useCurrentUser} from '@/lib/queries'
@@ -58,18 +58,15 @@ function PermissionSelect({
 	className?: string
 }) {
 	return (
-		<Select value={String(value)} onValueChange={v => onChange(Number(v))} disabled={disabled}>
-			<SelectTrigger size="sm" className={className ?? 'w-36'} aria-label="Permission">
-				<SelectValue />
-			</SelectTrigger>
-			<SelectContent align="end">
-				{PERMISSIONS.map(p => (
-					<SelectItem key={p.value} value={String(p.value)}>
-						{p.label}
-					</SelectItem>
-				))}
-			</SelectContent>
-		</Select>
+		<div className={className ?? 'w-36'}>
+			<SelectMenu
+				label="Permission"
+				options={PERMISSIONS.map(p => ({value: String(p.value), label: p.label}))}
+				value={String(value)}
+				onValueChange={v => onChange(Number(v))}
+				disabled={disabled}
+			/>
+		</div>
 	)
 }
 
@@ -136,53 +133,44 @@ function UserShares({projectId}: {projectId: number}) {
 	})
 
 	return (
-		<Card>
-			<CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
-				<div className="grid gap-1.5">
-					<CardTitle>People</CardTitle>
-					<CardDescription>Share with individual users.</CardDescription>
-				</div>
+		<Card
+			title="People"
+			description="Share with individual users."
+			action={
 				<UserPicker
 					label="Share with user"
 					excludeIds={[me?.id ?? -1, ...(users ?? []).map(u => u.id ?? -1)]}
 					disabled={add.isPending}
 					onSelect={u => u.username && add.mutate(u.username)}
 				/>
-			</CardHeader>
-			<CardContent className="px-0">
-				{isLoading ? (
-					<ListSkeleton />
-				) : !users?.length ? (
-					<p className="px-4 text-sm text-muted-foreground">Not shared with anyone yet.</p>
-				) : (
-					<ul className="-mb-4 divide-y border-t">
-						{users.map(u => (
-							<li key={u.id} className="flex items-center gap-2 px-4 py-3">
-								<div className="min-w-0 flex-1">
-									<UserLine user={u} />
-								</div>
-								<PermissionSelect
-									value={u.permission ?? 0}
-									onChange={permission => u.username && update.mutate({username: u.username, permission})}
-								/>
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<Button
-											variant="ghost"
-											size="icon-sm"
-											aria-label={`Remove ${displayName(u)}`}
-											onClick={() => u.username && remove.mutate(u.username)}
-										>
-											<XIcon />
-										</Button>
-									</TooltipTrigger>
-									<TooltipContent>Remove access</TooltipContent>
-								</Tooltip>
-							</li>
-						))}
-					</ul>
-				)}
-			</CardContent>
+			}
+		>
+			{isLoading ? (
+				<ListSkeleton />
+			) : !users?.length ? (
+				<p className="px-4 text-sm text-muted-foreground">Not shared with anyone yet.</p>
+			) : (
+				<ul className="-mb-4 divide-y border-t">
+					{users.map(u => (
+						<li key={u.id} className="flex items-center gap-2 px-4 py-3">
+							<div className="min-w-0 flex-1">
+								<UserLine user={u} />
+							</div>
+							<PermissionSelect
+								value={u.permission ?? 0}
+								onChange={permission => u.username && update.mutate({username: u.username, permission})}
+							/>
+							<Tooltip
+								label="Remove access"
+								aria-label={`Remove ${displayName(u)}`}
+								onClick={() => u.username && remove.mutate(u.username)}
+							>
+								<XIcon />
+							</Tooltip>
+						</li>
+					))}
+				</ul>
+			)}
 		</Card>
 	)
 }
@@ -223,18 +211,14 @@ function TeamShares({projectId}: {projectId: number}) {
 	})
 
 	return (
-		<Card>
-			<CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
-				<div className="grid gap-1.5">
-					<CardTitle>Teams</CardTitle>
-					<CardDescription>Everyone in the team gets the same access.</CardDescription>
-				</div>
+		<Card
+			title="Teams"
+			description="Everyone in the team gets the same access."
+			action={
 				<Popover open={open} onOpenChange={setOpen}>
-					<PopoverTrigger asChild>
-						<Button variant="outline" disabled={add.isPending}>
-							<UsersIcon />
-							Share with team
-						</Button>
+					<PopoverTrigger disabled={add.isPending} render={<Button />}>
+						<UsersIcon />
+						Share with team
 					</PopoverTrigger>
 					<PopoverContent className="w-64 p-0" align="end">
 						<Command>
@@ -262,8 +246,8 @@ function TeamShares({projectId}: {projectId: number}) {
 						</Command>
 					</PopoverContent>
 				</Popover>
-			</CardHeader>
-			<CardContent className="px-0">
+			}
+		>
 				{isLoading ? (
 					<ListSkeleton />
 				) : !teams?.length ? (
@@ -288,24 +272,13 @@ function TeamShares({projectId}: {projectId: number}) {
 									value={t.permission ?? 0}
 									onChange={permission => update.mutate({team: t.id!, permission})}
 								/>
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<Button
-											variant="ghost"
-											size="icon-sm"
-											aria-label={`Remove ${t.name}`}
-											onClick={() => remove.mutate(t.id!)}
-										>
-											<XIcon />
-										</Button>
-									</TooltipTrigger>
-									<TooltipContent>Remove access</TooltipContent>
+								<Tooltip label="Remove access" aria-label={`Remove ${t.name}`} onClick={() => remove.mutate(t.id!)}>
+									<XIcon />
 								</Tooltip>
 							</li>
 						))}
 					</ul>
 				)}
-			</CardContent>
 		</Card>
 	)
 }
@@ -333,68 +306,60 @@ function LinkShares({projectId}: {projectId: number}) {
 	})
 
 	return (
-		<Card>
-			<CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
-				<div className="grid gap-1.5">
-					<CardTitle>Share links</CardTitle>
-					<CardDescription>Anyone with the link can open the project without an account.</CardDescription>
-				</div>
-				<Button variant="outline" onClick={() => setCreating(true)}>
+		<Card
+			title="Share links"
+			description="Anyone with the link can open the project without an account."
+			action={
+				<Button onClick={() => setCreating(true)}>
 					<LinkIcon />
 					Create link
 				</Button>
-			</CardHeader>
-			<CardContent className="px-0">
-				{isLoading ? (
-					<ListSkeleton />
-				) : !links?.length ? (
-					<p className="px-4 text-sm text-muted-foreground">No share links.</p>
-				) : (
-					<ul className="-mb-4 divide-y border-t">
-						{links.map(l => {
-							const url = shareUrl(l.hash)
-							const created = parseDate(l.created)
-							return (
-								<li key={l.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3">
-									<div className="flex min-w-0 flex-1 items-center gap-3">
-										<span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted">
-											{l.sharing_type === 2 ? <LockIcon className="size-4" /> : <LinkIcon className="size-4" />}
+			}
+		>
+			{isLoading ? (
+				<ListSkeleton />
+			) : !links?.length ? (
+				<p className="px-4 text-sm text-muted-foreground">No share links.</p>
+			) : (
+				<ul className="-mb-4 divide-y border-t">
+					{links.map(l => {
+						const url = shareUrl(l.hash)
+						const created = parseDate(l.created)
+						return (
+							<li key={l.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3">
+								<div className="flex min-w-0 flex-1 items-center gap-3">
+									<span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted">
+										{l.sharing_type === 2 ? <LockIcon className="size-4" /> : <LinkIcon className="size-4" />}
+									</span>
+									<div className="grid min-w-0 text-sm leading-tight">
+										<span className="flex items-center gap-2 truncate font-medium">
+											{l.name || 'Unnamed link'}
+											<Badge className="font-normal">
+												{PERMISSIONS[l.permission ?? 0]?.label}
+											</Badge>
 										</span>
-										<div className="grid min-w-0 text-sm leading-tight">
-											<span className="flex items-center gap-2 truncate font-medium">
-												{l.name || 'Unnamed link'}
-												<Badge variant="secondary" className="font-normal">
-													{PERMISSIONS[l.permission ?? 0]?.label}
-												</Badge>
-											</span>
-											<span className="truncate text-xs text-muted-foreground">
-												{l.sharing_type === 2 ? 'Password protected · ' : ''}
-												by {displayName(l.shared_by)}
-												{created && ` · ${relative(created)}`}
-											</span>
-										</div>
+										<span className="truncate text-xs text-muted-foreground">
+											{l.sharing_type === 2 ? 'Password protected · ' : ''}
+											by {displayName(l.shared_by)}
+											{created && ` · ${relative(created)}`}
+										</span>
 									</div>
-									<div className="flex items-center gap-1">
-										<Input readOnly value={url} className="hidden h-7 w-56 font-mono text-xs md:block md:text-xs" onFocus={e => e.target.select()} />
-										<Button variant="outline" size="sm" onClick={() => copy(url, String(l.id))}>
-											{copied === String(l.id) ? <CheckIcon /> : <CopyIcon />}
-											{copied === String(l.id) ? 'Copied' : 'Copy link'}
-										</Button>
-										<Tooltip>
-											<TooltipTrigger asChild>
-												<Button variant="ghost" size="icon-sm" aria-label="Delete link" onClick={() => setDeleting(l)}>
-													<Trash2Icon />
-												</Button>
-											</TooltipTrigger>
-											<TooltipContent>Delete link</TooltipContent>
-										</Tooltip>
-									</div>
-								</li>
-							)
-						})}
-					</ul>
-				)}
-			</CardContent>
+								</div>
+								<div className="flex items-center gap-1">
+									<Input readOnly value={url} className="hidden h-7 w-56 font-mono text-xs md:block md:text-xs" onFocus={e => e.target.select()} />
+									<Button size="sm" onClick={() => copy(url, String(l.id))}>
+										{copied === String(l.id) ? <CheckIcon /> : <CopyIcon />}
+										{copied === String(l.id) ? 'Copied' : 'Copy link'}
+									</Button>
+									<Tooltip label="Delete link" onClick={() => setDeleting(l)}>
+										<Trash2Icon />
+									</Tooltip>
+								</div>
+							</li>
+						)
+					})}
+				</ul>
+			)}
 			<CreateLinkDialog projectId={projectId} open={creating} onOpenChange={setCreating} onCopy={copy} />
 			<ConfirmDialog
 				open={!!deleting}
@@ -436,7 +401,7 @@ function CreateLinkDialog({
 	})
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="sm:max-w-md">
+			<DialogContent>
 				<form
 					className="grid gap-4"
 					onSubmit={e => {
@@ -444,10 +409,8 @@ function CreateLinkDialog({
 						create.mutate()
 					}}
 				>
-					<DialogHeader>
-						<DialogTitle>Create share link</DialogTitle>
-						<DialogDescription>Actions taken through the link show up under its name.</DialogDescription>
-					</DialogHeader>
+					<DialogTitle>Create share link</DialogTitle>
+					<DialogDescription>Actions taken through the link show up under its name.</DialogDescription>
 					<FieldGroup>
 						<Field>
 							<FieldLabel>Permission</FieldLabel>
@@ -470,15 +433,15 @@ function CreateLinkDialog({
 							/>
 						</Field>
 					</FieldGroup>
-					<DialogFooter>
-						<Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+					<DialogActions>
+						<Button type="button" onClick={() => onOpenChange(false)}>
 							Cancel
 						</Button>
-						<Button type="submit" disabled={create.isPending}>
+						<Button type="submit" tone="primary" disabled={create.isPending}>
 							<PlusIcon />
 							Create link
 						</Button>
-					</DialogFooter>
+					</DialogActions>
 				</form>
 			</DialogContent>
 		</Dialog>

@@ -52,18 +52,14 @@ export function TaskDetail({
 					</EmptyHeader>
 					<EmptyContent className="flex-row justify-center">
 						{!missing && (
-							<Button variant="outline" onClick={() => void query.refetch()}>
+							<Button onClick={() => void query.refetch()}>
 								Try again
 							</Button>
 						)}
 						{onClose ? (
-							<Button variant={missing ? 'outline' : 'ghost'} onClick={onClose}>
-								Close
-							</Button>
+							<Button onClick={onClose}>Close</Button>
 						) : (
-							<Button variant={missing ? 'outline' : 'ghost'} asChild>
-								<Link to="/">Go home</Link>
-							</Button>
+							<Button render={<Link to="/" />}>Go home</Button>
 						)}
 					</EmptyContent>
 				</Empty>

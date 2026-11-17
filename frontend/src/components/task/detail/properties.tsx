@@ -31,7 +31,7 @@ import {
 import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover'
 import {Separator} from '@/components/ui/separator'
 import {Spinner} from '@/components/ui/spinner'
-import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip'
+import {Tooltip} from '@/components/ui/tooltip'
 import {errorMessage} from '@/lib/api'
 import {displayName, formatDateTime, parseDate, PRIORITIES, relative, toApiDate} from '@/lib/format'
 import {invalidateTasks} from '@/lib/queries'
@@ -178,17 +178,15 @@ export function TaskProperties({
 
 			<PropertyRow label="Color" icon={<PaletteIcon />}>
 				<Popover>
-					<PopoverTrigger asChild disabled={disabled}>
-						<button type="button" className={valueButton}>
-							{task.hex_color ? (
-								<>
-									<ColorDot color={task.hex_color} className="size-3.5" />
-									<span className="font-mono text-xs uppercase">#{task.hex_color}</span>
-								</>
-							) : (
-								<Placeholder>No color</Placeholder>
-							)}
-						</button>
+					<PopoverTrigger disabled={disabled} render={<button type="button" className={valueButton} />}>
+						{task.hex_color ? (
+							<>
+								<ColorDot color={task.hex_color} className="size-3.5" />
+								<span className="font-mono text-xs uppercase">#{task.hex_color}</span>
+							</>
+						) : (
+							<Placeholder>No color</Placeholder>
+						)}
 					</PopoverTrigger>
 					<PopoverContent className="w-auto p-3" align="end">
 						<ColorPicker value={task.hex_color ?? ''} onChange={hex => update({hex_color: hex})} />
@@ -233,11 +231,8 @@ function MetaLine({label, date, children}: {label: string; date: Date; children?
 		<div className="flex flex-wrap items-center gap-x-1">
 			<dt>{label}</dt>
 			<dd className="flex flex-wrap items-center gap-x-1">
-				<Tooltip>
-					<TooltipTrigger asChild>
-						<span className="text-foreground">{relative(date)}</span>
-					</TooltipTrigger>
-					<TooltipContent>{formatDateTime(date)}</TooltipContent>
+				<Tooltip label={formatDateTime(date)} render={<span />} className="text-foreground">
+					{relative(date)}
 				</Tooltip>
 				{children}
 			</dd>

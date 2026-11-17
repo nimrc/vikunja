@@ -15,7 +15,7 @@ import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
 import {Empty, EmptyDescription, EmptyHeader, EmptyTitle} from '@/components/ui/empty'
 import {Skeleton} from '@/components/ui/skeleton'
-import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip'
+import {Tooltip} from '@/components/ui/tooltip'
 import {ColorDot} from '@/components/color-picker'
 import {PageSpinner} from '@/components/page-spinner'
 import {ProjectActionsMenu, useToggleFavorite} from '@/components/project-actions'
@@ -86,7 +86,7 @@ export default function ProjectPage() {
 					<EmptyTitle>Project not found</EmptyTitle>
 					<EmptyDescription>It may have been deleted, or you no longer have access.</EmptyDescription>
 				</EmptyHeader>
-				<Button variant="outline" onClick={() => navigate('/projects')}>
+				<Button onClick={() => navigate('/projects')}>
 					All projects
 				</Button>
 			</Empty>
@@ -116,7 +116,7 @@ export default function ProjectPage() {
 							)}
 							<h1 className="truncate text-2xl font-semibold tracking-tight">{project.title}</h1>
 							{project.is_archived && (
-								<Badge variant="secondary" className="gap-1">
+								<Badge tone="neutral" className="gap-1">
 									<ArchiveIcon className="size-3" />
 									Archived
 								</Badge>
@@ -131,18 +131,16 @@ export default function ProjectPage() {
 					</div>
 					<div className="flex shrink-0 items-center gap-1">
 						{!filter && projectId > 0 && (
-							<Tooltip>
-								<TooltipTrigger asChild>
-									<Button variant="ghost" size="icon" onClick={() => toggleFavorite(project)}>
-										<StarIcon className={cn(project.is_favorite && 'fill-amber-400 text-amber-400')} />
-									</Button>
-								</TooltipTrigger>
-								<TooltipContent>{project.is_favorite ? 'Unfavorite' : 'Favorite'}</TooltipContent>
+							<Tooltip
+								label={project.is_favorite ? 'Unfavorite' : 'Favorite'}
+								render={<Button round onClick={() => toggleFavorite(project)} />}
+							>
+								<StarIcon className={cn(project.is_favorite && 'fill-amber-400 text-amber-400')} />
 							</Tooltip>
 						)}
 						{projectId !== -1 && (
 							<ProjectActionsMenu project={project}>
-								<Button variant="ghost" size="icon" aria-label="Project actions">
+								<Button round aria-label="Project actions">
 									<MoreHorizontalIcon />
 								</Button>
 							</ProjectActionsMenu>
@@ -166,9 +164,7 @@ export default function ProjectPage() {
 						<EmptyTitle>No views</EmptyTitle>
 						<EmptyDescription>This project has no views yet.</EmptyDescription>
 					</EmptyHeader>
-					<Button asChild variant="outline">
-						<Link to={`/projects/${projectId}/settings/views`}>Manage views</Link>
-					</Button>
+					<Button render={<Link to={`/projects/${projectId}/settings/views`} />}>Manage views</Button>
 				</Empty>
 			)}
 		</div>

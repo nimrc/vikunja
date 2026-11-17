@@ -14,7 +14,7 @@ import {UserAvatarPlain} from '@/components/user-picker'
 import {Button} from '@/components/ui/button'
 import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover'
 import {ScrollArea} from '@/components/ui/scroll-area'
-import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip'
+import {Tooltip} from '@/components/ui/tooltip'
 import {displayName, formatDateTime, parseDate, relative} from '@/lib/format'
 import {useOpenTask} from '@/lib/navigation'
 import {queryClient, useCurrentUser} from '@/lib/queries'
@@ -177,18 +177,24 @@ export function NotificationsButton() {
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
-			<PopoverTrigger asChild>
-				<Button variant="ghost" size="icon" className="relative" aria-label={`Notifications${unread ? ` (${unread} unread)` : ''}`}>
-					<BellIcon />
-					{unread > 0 && (
-						<span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-primary ring-2 ring-background" />
-					)}
-				</Button>
+			<PopoverTrigger
+				render={
+					<Button
+						round
+						className="relative"
+						aria-label={`Notifications${unread ? ` (${unread} unread)` : ''}`}
+					/>
+				}
+			>
+				<BellIcon />
+				{unread > 0 && (
+					<span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-primary ring-2 ring-background" />
+				)}
 			</PopoverTrigger>
 			<PopoverContent
 				align="end"
 				className="w-[min(24rem,calc(100vw-2rem))] gap-0 p-0"
-				onOpenAutoFocus={e => e.preventDefault()}
+				initialFocus="none"
 			>
 				<div className="flex items-center gap-1 border-b px-4 py-2.5">
 					<div className="flex-1">
@@ -196,23 +202,13 @@ export function NotificationsButton() {
 						<p className="text-xs text-muted-foreground">{unread ? `${unread} unread` : 'All caught up'}</p>
 					</div>
 					{unread > 0 && (
-						<Tooltip>
-							<TooltipTrigger asChild>
-								<Button variant="ghost" size="icon-sm" onClick={() => markAll.mutate()} aria-label="Mark all as read">
-									<CheckCheckIcon />
-								</Button>
-							</TooltipTrigger>
-							<TooltipContent>Mark all as read</TooltipContent>
+						<Tooltip label="Mark all as read" onClick={() => markAll.mutate()}>
+							<CheckCheckIcon />
 						</Tooltip>
 					)}
 					{rows.length > 0 && (
-						<Tooltip>
-							<TooltipTrigger asChild>
-								<Button variant="ghost" size="icon-sm" onClick={() => clearAll.mutate()} aria-label="Clear all">
-									<Trash2Icon />
-								</Button>
-							</TooltipTrigger>
-							<TooltipContent>Clear all</TooltipContent>
+						<Tooltip label="Clear all" onClick={() => clearAll.mutate()}>
+							<Trash2Icon />
 						</Tooltip>
 					)}
 				</div>
@@ -265,7 +261,6 @@ export function NotificationsButton() {
 						{q.hasNextPage && (
 							<div className="p-2 pt-0">
 								<Button
-									variant="ghost"
 									size="sm"
 									className="w-full"
 									disabled={q.isFetchingNextPage}

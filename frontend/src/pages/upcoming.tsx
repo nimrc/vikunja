@@ -3,10 +3,9 @@ import {addDays, format, isBefore, startOfDay} from 'date-fns'
 import {CalendarCheck2Icon} from 'lucide-react'
 import type {Task} from '@/client/generated'
 import {Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle} from '@/components/ui/empty'
-import {Label} from '@/components/ui/label'
 import {Skeleton} from '@/components/ui/skeleton'
 import {Switch} from '@/components/ui/switch'
-import {ToggleGroup, ToggleGroupItem} from '@/components/ui/toggle-group'
+import {ToggleGroup} from '@/components/ui/toggle-group'
 import {TaskRow} from '@/components/task/task-row'
 import {parseDate} from '@/lib/format'
 import {useAllTasks, useProjects} from '@/lib/queries'
@@ -53,19 +52,16 @@ export default function Upcoming() {
 					<p className="text-sm text-muted-foreground">Open tasks with a due date, across all projects.</p>
 				</div>
 				<div className="flex flex-wrap items-center gap-4">
-					<div className="flex items-center gap-2">
-						<Switch id="show-overdue" checked={overdue} onCheckedChange={setOverdue} />
-						<Label htmlFor="show-overdue" className="font-normal">
-							Overdue
-						</Label>
-					</div>
-					<ToggleGroup type="single" variant="outline" size="sm" value={range} onValueChange={v => v && setRange(v as RangeKey)}>
-						{Object.entries(RANGES).map(([k, r]) => (
-							<ToggleGroupItem key={k} value={k} className="px-3">
-								{r.label}
-							</ToggleGroupItem>
-						))}
-					</ToggleGroup>
+					<Switch label="Overdue" checked={overdue} onCheckedChange={setOverdue} />
+					<ToggleGroup
+						label="Date range"
+						options={Object.entries(RANGES).map(([k, r]) => ({
+							value: k,
+							label: r.label,
+						}))}
+						value={range}
+						onValueChange={v => setRange(v as RangeKey)}
+					/>
 				</div>
 			</div>
 

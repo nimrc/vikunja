@@ -1,11 +1,10 @@
 import {useState} from 'react'
 import {useMutation} from '@tanstack/react-query'
-import {MailWarningIcon} from 'lucide-react'
 import {toast} from 'sonner'
 import {userCancelEmailUpdate, userResendEmailConfirmation, userUpdateEmail} from '@/client/generated'
-import {Alert, AlertAction, AlertDescription, AlertTitle} from '@/components/ui/alert'
+import {Alert} from '@/components/ui/alert'
 import {Button} from '@/components/ui/button'
-import {Card, CardContent, CardFooter} from '@/components/ui/card'
+import {Card} from '@/components/ui/card'
 import {Field, FieldDescription, FieldGroup, FieldLabel} from '@/components/ui/field'
 import {Input} from '@/components/ui/input'
 import {keys, queryClient, useCurrentUser} from '@/lib/queries'
@@ -47,48 +46,57 @@ export default function Email() {
 				}
 			/>
 			{user?.pending_email && (
-				<Alert className="mb-4">
-					<MailWarningIcon />
-					<AlertTitle>Waiting for confirmation</AlertTitle>
-					<AlertDescription>
+				<div className="mb-4">
+					<Alert
+						title="Waiting for confirmation"
+						action={
+							<div className="flex gap-1">
+								<Button size="sm" disabled={resend.isPending} onClick={() => resend.mutate()}>
+									Resend
+								</Button>
+								<Button size="sm" disabled={cancel.isPending} onClick={() => cancel.mutate()}>
+									Cancel change
+								</Button>
+							</div>
+						}
+					>
 						We sent a link to {user.pending_email}. Your address changes once you click it.
-					</AlertDescription>
-					<AlertAction className="flex gap-1">
-						<Button size="sm" variant="ghost" disabled={resend.isPending} onClick={() => resend.mutate()}>
-							Resend
-						</Button>
-						<Button size="sm" variant="outline" disabled={cancel.isPending} onClick={() => cancel.mutate()}>
-							Cancel change
-						</Button>
-					</AlertAction>
-				</Alert>
+					</Alert>
+				</div>
 			)}
-			<Card>
+			<Card
+				footer={
+					<div className="flex justify-end">
+						<Button
+							type="submit"
+							form="email-form"
+							tone="primary"
+							disabled={!email.trim() || !password || save.isPending}
+						>
+							Change email
+						</Button>
+					</div>
+				}
+			>
 				<form
+					id="email-form"
 					className="grid gap-4"
 					onSubmit={e => {
 						e.preventDefault()
 						if (email.trim() && password) save.mutate()
 					}}
 				>
-					<CardContent>
-						<FieldGroup>
-							<Field>
-								<FieldLabel htmlFor="new-email">New email</FieldLabel>
-								<Input id="new-email" type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} />
-								<FieldDescription>We'll send a confirmation link to this address.</FieldDescription>
-							</Field>
-							<Field>
-								<FieldLabel htmlFor="email-password">Current password</FieldLabel>
-								<Input id="email-password" type="password" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} />
-							</Field>
-						</FieldGroup>
-					</CardContent>
-					<CardFooter className="justify-end border-t">
-						<Button type="submit" disabled={!email.trim() || !password || save.isPending}>
-							Change email
-						</Button>
-					</CardFooter>
+					<FieldGroup>
+						<Field>
+							<FieldLabel htmlFor="new-email">New email</FieldLabel>
+							<Input id="new-email" type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} />
+							<FieldDescription>We'll send a confirmation link to this address.</FieldDescription>
+						</Field>
+						<Field>
+							<FieldLabel htmlFor="email-password">Current password</FieldLabel>
+							<Input id="email-password" type="password" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} />
+						</Field>
+					</FieldGroup>
 				</form>
 			</Card>
 		</>

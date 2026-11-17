@@ -14,11 +14,11 @@ import {
 	type SavedFilter,
 } from '@/client/generated'
 import {Button} from '@/components/ui/button'
-import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from '@/components/ui/card'
-import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle} from '@/components/ui/dialog'
+import {Card} from '@/components/ui/card'
+import {Dialog, DialogActions, DialogContent, DialogTitle} from '@/components/ui/dialog'
 import {Field, FieldDescription, FieldGroup, FieldLabel} from '@/components/ui/field'
 import {Input} from '@/components/ui/input'
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select'
+import {SelectMenu} from '@/components/ui/select'
 import {Skeleton} from '@/components/ui/skeleton'
 import {Spinner} from '@/components/ui/spinner'
 import {Switch} from '@/components/ui/switch'
@@ -56,11 +56,9 @@ export default function ProjectSettings() {
 	return (
 		<div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 md:p-6">
 			<div className="flex flex-col gap-3">
-				<Button variant="ghost" size="sm" asChild className="-ml-2 w-fit text-muted-foreground">
-					<Link to={projectHref(project)}>
-						<ArrowLeftIcon />
-						{project.title}
-					</Link>
+				<Button size="sm" className="-ml-2 w-fit text-muted-foreground" render={<Link to={projectHref(project)} />}>
+					<ArrowLeftIcon />
+					{project.title}
 				</Button>
 				<h1 className="text-2xl font-semibold tracking-tight">{filter ? 'Filter settings' : 'Project settings'}</h1>
 				<nav className="flex gap-1 border-b">
@@ -123,61 +121,60 @@ function GeneralForm({project}: {project: Project}) {
 		)
 
 	return (
-		<Card>
-			<CardHeader>
-				<CardTitle>General</CardTitle>
-				<CardDescription>Name, identifier and appearance.</CardDescription>
-			</CardHeader>
-			<CardContent>
-				<FieldGroup>
-					<div className="grid gap-4 sm:grid-cols-[1fr_10rem]">
-						<Field>
-							<FieldLabel htmlFor="p-title">Title</FieldLabel>
-							<Input id="p-title" value={title} disabled={!canEdit} onChange={e => setTitle(e.target.value)} />
-						</Field>
-						<Field>
-							<FieldLabel htmlFor="p-ident">Identifier</FieldLabel>
-							<Input
-								id="p-ident"
-								value={identifier}
-								maxLength={10}
-								disabled={!canEdit}
-								onChange={e => setIdentifier(e.target.value.toUpperCase())}
-								placeholder="e.g. HOME"
-							/>
-						</Field>
+		<Card
+			title="General"
+			description="Name, identifier and appearance."
+			footer={
+				canEdit && (
+					<div className="flex justify-end">
+						<Button tone="primary" onClick={save} disabled={!title.trim() || update.isPending}>
+							{update.isPending && <Spinner />}
+							Save changes
+						</Button>
 					</div>
-					<FieldDescription className="-mt-4">The identifier prefixes task numbers, like HOME-12.</FieldDescription>
+				)
+			}
+		>
+			<FieldGroup>
+				<div className="grid gap-4 sm:grid-cols-[1fr_10rem]">
 					<Field>
-						<FieldLabel>Parent project</FieldLabel>
-						<ProjectSelect value={parent} onChange={setParent} allowNone noneLabel="None (top level)" excludeId={project.id} />
+						<FieldLabel htmlFor="p-title">Title</FieldLabel>
+						<Input id="p-title" value={title} disabled={!canEdit} onChange={e => setTitle(e.target.value)} />
 					</Field>
 					<Field>
-						<FieldLabel>Color</FieldLabel>
-						<ColorPicker value={color} onChange={setColor} />
-					</Field>
-					<Field>
-						<FieldLabel>Description</FieldLabel>
-						<RichTextEditor
-							value={description}
-							onSave={html => setDescription(html)}
-							readOnly={!canEdit}
-							placeholder="What is this project about?"
-							emptyText="No description. Click to add one."
-							saveLabel="Done"
-							className="rounded-lg border p-3"
+						<FieldLabel htmlFor="p-ident">Identifier</FieldLabel>
+						<Input
+							id="p-ident"
+							value={identifier}
+							maxLength={10}
+							disabled={!canEdit}
+							onChange={e => setIdentifier(e.target.value.toUpperCase())}
+							placeholder="e.g. HOME"
 						/>
 					</Field>
-				</FieldGroup>
-			</CardContent>
-			{canEdit && (
-				<CardFooter className="justify-end border-t">
-					<Button onClick={save} disabled={!title.trim() || update.isPending}>
-						{update.isPending && <Spinner />}
-						Save changes
-					</Button>
-				</CardFooter>
-			)}
+				</div>
+				<FieldDescription className="-mt-4">The identifier prefixes task numbers, like HOME-12.</FieldDescription>
+				<Field>
+					<FieldLabel>Parent project</FieldLabel>
+					<ProjectSelect value={parent} onChange={setParent} allowNone noneLabel="None (top level)" excludeId={project.id} />
+				</Field>
+				<Field>
+					<FieldLabel>Color</FieldLabel>
+					<ColorPicker value={color} onChange={setColor} />
+				</Field>
+				<Field>
+					<FieldLabel>Description</FieldLabel>
+					<RichTextEditor
+						value={description}
+						onSave={html => setDescription(html)}
+						readOnly={!canEdit}
+						placeholder="What is this project about?"
+						emptyText="No description. Click to add one."
+						saveLabel="Done"
+						className="rounded-lg border p-3"
+					/>
+				</Field>
+			</FieldGroup>
 		</Card>
 	)
 }
@@ -220,12 +217,11 @@ export function FilterFields({
 					joined with &amp;&amp; and ||. Dates accept now, now/d, now+7d.
 				</FieldDescription>
 			</Field>
-			<Field orientation="horizontal">
-				<Switch id="f-nulls" checked={value.includeNulls} onCheckedChange={v => onChange({...value, includeNulls: v})} />
-				<FieldLabel htmlFor="f-nulls" className="font-normal">
-					Include tasks where the filtered field is empty
-				</FieldLabel>
-			</Field>
+			<Switch
+				label="Include tasks where the filtered field is empty"
+				checked={value.includeNulls}
+				onCheckedChange={v => onChange({...value, includeNulls: v})}
+			/>
 			<Field>
 				<FieldLabel htmlFor="f-desc">Description</FieldLabel>
 				<Textarea id="f-desc" value={value.description} onChange={e => onChange({...value, description: e.target.value})} />
@@ -260,26 +256,35 @@ function FilterEditor({filter, filterId}: {filter: SavedFilter; filterId: number
 		},
 	})
 	return (
-		<Card>
-			<CardHeader>
-				<CardTitle>Saved filter</CardTitle>
-				<CardDescription>A saved filter shows matching tasks from all your projects.</CardDescription>
-			</CardHeader>
-			<CardContent>
-				<FilterFields value={value} onChange={setValue} />
-			</CardContent>
-			<CardFooter className="justify-end border-t">
-				<Button onClick={() => save.mutate()} disabled={!value.title.trim() || save.isPending}>
-					{save.isPending && <Spinner />}
-					Save filter
-				</Button>
-			</CardFooter>
+		<Card
+			title="Saved filter"
+			description="A saved filter shows matching tasks from all your projects."
+			footer={
+				<div className="flex justify-end">
+					<Button tone="primary" onClick={() => save.mutate()} disabled={!value.title.trim() || save.isPending}>
+						{save.isPending && <Spinner />}
+						Save filter
+					</Button>
+				</div>
+			}
+		>
+			<FilterFields value={value} onChange={setValue} />
 		</Card>
 	)
 }
 
 const KIND_ICON = {list: ListIcon, table: Table2Icon, kanban: KanbanSquareIcon, gantt: GanttChartIcon}
 const KINDS = ['list', 'table', 'kanban', 'gantt'] as const
+const BUCKET_MODES = [
+	{
+		value: 'manual',
+		label: 'Manual — drag tasks between buckets',
+	},
+	{
+		value: 'filter',
+		label: 'Filter — each bucket is a query',
+	},
+]
 
 function ViewsManager({project}: {project: Project}) {
 	const views = [...(project.views ?? [])].sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
@@ -297,20 +302,19 @@ function ViewsManager({project}: {project: Project}) {
 	})
 
 	return (
-		<Card>
-			<CardHeader className="flex flex-row items-start justify-between">
-				<div className="flex flex-col gap-1.5">
-					<CardTitle>Views</CardTitle>
-					<CardDescription>Each view shows the project's tasks in its own layout, with its own filter.</CardDescription>
-				</div>
-				{canAdmin && (
-					<Button size="sm" onClick={() => setEditing('new')}>
+		<Card
+			title="Views"
+			description="Each view shows the project's tasks in its own layout, with its own filter."
+			action={
+				canAdmin && (
+					<Button tone="primary" size="sm" onClick={() => setEditing('new')}>
 						<PlusIcon />
 						Add view
 					</Button>
-				)}
-			</CardHeader>
-			<CardContent className="flex flex-col divide-y">
+				)
+			}
+		>
+			<div className="flex flex-col divide-y">
 				{views.map(v => {
 					const Icon = KIND_ICON[v.view_kind ?? 'list']
 					return (
@@ -331,10 +335,10 @@ function ViewsManager({project}: {project: Project}) {
 							</button>
 							{canAdmin && (
 								<div className="flex gap-1">
-									<Button variant="ghost" size="icon-sm" onClick={() => setEditing(v)} aria-label="Edit view">
+									<Button round onClick={() => setEditing(v)} aria-label="Edit view">
 										<PencilIcon />
 									</Button>
-									<Button variant="ghost" size="icon-sm" onClick={() => setDeleting(v)} aria-label="Delete view">
+									<Button round onClick={() => setDeleting(v)} aria-label="Delete view">
 										<Trash2Icon />
 									</Button>
 								</div>
@@ -342,7 +346,7 @@ function ViewsManager({project}: {project: Project}) {
 						</div>
 					)
 				})}
-			</CardContent>
+			</div>
 			{editing && (
 				<ViewDialog
 					project={project}
@@ -391,16 +395,14 @@ function ViewDialog({project, view, nextPosition, onClose}: {project: Project; v
 
 	return (
 		<Dialog open onOpenChange={o => !o && onClose()}>
-			<DialogContent className="sm:max-w-lg">
+			<DialogContent>
 				<form
 					onSubmit={e => {
 						e.preventDefault()
 						if (title.trim()) save.mutate()
 					}}
 				>
-					<DialogHeader>
-						<DialogTitle>{view ? 'Edit view' : 'New view'}</DialogTitle>
-					</DialogHeader>
+					<DialogTitle>{view ? 'Edit view' : 'New view'}</DialogTitle>
 					<FieldGroup className="py-6">
 						<Field>
 							<FieldLabel htmlFor="v-title">Title</FieldLabel>
@@ -443,27 +445,24 @@ function ViewDialog({project, view, nextPosition, onClose}: {project: Project; v
 						{kind === 'kanban' && (
 							<Field>
 								<FieldLabel>Buckets</FieldLabel>
-								<Select value={bucketMode} onValueChange={v => setBucketMode(v as typeof bucketMode)}>
-									<SelectTrigger className="w-full">
-										<SelectValue />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="manual">Manual — drag tasks between buckets</SelectItem>
-										<SelectItem value="filter">Filter — each bucket is a query</SelectItem>
-									</SelectContent>
-								</Select>
+								<SelectMenu
+									label="Buckets"
+									options={BUCKET_MODES}
+									value={bucketMode}
+									onValueChange={v => setBucketMode(v as typeof bucketMode)}
+								/>
 							</Field>
 						)}
 					</FieldGroup>
-					<DialogFooter>
-						<Button type="button" variant="outline" onClick={onClose}>
+					<DialogActions>
+						<Button type="button" onClick={onClose}>
 							Cancel
 						</Button>
-						<Button type="submit" disabled={!title.trim() || save.isPending}>
+						<Button type="submit" tone="primary" disabled={!title.trim() || save.isPending}>
 							{save.isPending && <Spinner />}
 							{view ? 'Save' : 'Create view'}
 						</Button>
-					</DialogFooter>
+					</DialogActions>
 				</form>
 			</DialogContent>
 		</Dialog>

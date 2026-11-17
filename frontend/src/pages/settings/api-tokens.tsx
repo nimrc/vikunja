@@ -10,15 +10,16 @@ import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
 import {Calendar} from '@/components/ui/calendar'
 import {Checkbox} from '@/components/ui/checkbox'
-import {Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle} from '@/components/ui/dialog'
+import {Dialog, DialogActions, DialogContent, DialogDescription, DialogTitle} from '@/components/ui/dialog'
 import {Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle} from '@/components/ui/empty'
 import {Field, FieldError, FieldLabel} from '@/components/ui/field'
+import {HoverCard} from '@/components/ui/hover-card'
 import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover'
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select'
+import {SelectMenu} from '@/components/ui/select'
 import {Skeleton} from '@/components/ui/skeleton'
-import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip'
+import {Tooltip} from '@/components/ui/tooltip'
 import {API_BASE} from '@/lib/api'
 import {formatDateTime, parseDate, relative} from '@/lib/format'
 import {queryClient} from '@/lib/queries'
@@ -137,7 +138,7 @@ export default function ApiTokens() {
 				}
 				action={
 					tokens?.length ? (
-						<Button onClick={() => setCreating(true)}>
+						<Button tone="primary" onClick={() => setCreating(true)}>
 							<PlusIcon />
 							New token
 						</Button>
@@ -160,7 +161,7 @@ export default function ApiTokens() {
 						<EmptyDescription>Create a token to use Vikunja from scripts, a CLI or an AI agent.</EmptyDescription>
 					</EmptyHeader>
 					<EmptyContent>
-						<Button onClick={() => setCreating(true)}>
+						<Button tone="primary" onClick={() => setCreating(true)}>
 							<PlusIcon />
 							Create token
 						</Button>
@@ -175,7 +176,7 @@ export default function ApiTokens() {
 			)}
 
 			<Dialog open={creating} onOpenChange={closeCreate}>
-				<DialogContent className="flex max-h-[90dvh] flex-col gap-0 p-0 sm:max-w-2xl">
+				<DialogContent>
 					{creating && (
 						<CreateTokenForm
 							prefill={prefill}
@@ -190,7 +191,7 @@ export default function ApiTokens() {
 			</Dialog>
 
 			<Dialog open={!!created} onOpenChange={o => !o && setCreated(null)}>
-				<DialogContent className="sm:max-w-xl">
+				<DialogContent>
 					{created && <CreatedToken token={created} onDone={() => setCreated(null)} />}
 				</DialogContent>
 			</Dialog>
@@ -220,31 +221,30 @@ function TokenRow({token, onDelete}: {token: ApiToken; onDelete: () => void}) {
 			<div className="grid min-w-0 flex-1 gap-1">
 				<div className="flex flex-wrap items-center gap-2">
 					<span className={cn('truncate text-sm font-medium', expired && 'text-muted-foreground line-through')}>{token.title}</span>
-					{expired && <Badge variant="destructive">Expired</Badge>}
+					{expired && <Badge tone="danger">Expired</Badge>}
 				</div>
 				<div className="flex flex-wrap items-center gap-1">
 					{groups.slice(0, 4).map(([g]) => (
-						<Badge key={g} variant="outline" className="font-normal text-muted-foreground">
+						<Badge key={g} tone="neutral" className="font-normal text-muted-foreground">
 							{human(g)}
 						</Badge>
 					))}
-					<Tooltip>
-						<TooltipTrigger asChild>
+					<HoverCard
+						trigger={
 							<span className="cursor-default text-xs text-muted-foreground">
 								{groups.length > 4 && `+${groups.length - 4} more · `}
 								{total} scope{total === 1 ? '' : 's'}
 							</span>
-						</TooltipTrigger>
-						<TooltipContent className="max-w-sm">
-							<div className="grid gap-0.5 text-xs">
-								{groups.map(([g, p]) => (
-									<div key={g}>
-										<span className="font-medium">{g}</span>: {p?.join(', ')}
-									</div>
-								))}
-							</div>
-						</TooltipContent>
-					</Tooltip>
+						}
+					>
+						<div className="grid max-w-sm gap-0.5 text-xs">
+							{groups.map(([g, p]) => (
+								<div key={g}>
+									<span className="font-medium">{g}</span>: {p?.join(', ')}
+								</div>
+							))}
+						</div>
+					</HoverCard>
 				</div>
 			</div>
 			<div className="grid text-right text-xs text-muted-foreground">
@@ -255,13 +255,12 @@ function TokenRow({token, onDelete}: {token: ApiToken; onDelete: () => void}) {
 				)}
 				{created && <span title={formatDateTime(created)}>Created {relative(created)}</span>}
 			</div>
-			<Tooltip>
-				<TooltipTrigger asChild>
-					<Button variant="ghost" size="icon-sm" aria-label={`Delete ${token.title}`} onClick={onDelete}>
-						<Trash2Icon />
-					</Button>
-				</TooltipTrigger>
-				<TooltipContent>Delete token</TooltipContent>
+			<Tooltip
+				label="Delete token"
+				aria-label={`Delete ${token.title}`}
+				render={<Button round onClick={onDelete} />}
+			>
+				<Trash2Icon />
 			</Tooltip>
 		</li>
 	)
@@ -352,11 +351,9 @@ function CreateTokenForm({
 				if (title.trim() && count > 0 && expiryValid) create.mutate()
 			}}
 		>
-			<DialogHeader className="border-b p-4 pr-10">
-				<DialogTitle>New API token</DialogTitle>
-				<DialogDescription>The token is shown once after creation. Grant only what the tool needs.</DialogDescription>
-			</DialogHeader>
-			<div className="grid min-h-0 flex-1 gap-5 overflow-y-auto p-4">
+			<DialogTitle>New API token</DialogTitle>
+			<DialogDescription>The token is shown once after creation. Grant only what the tool needs.</DialogDescription>
+			<div className="grid max-h-[60dvh] min-h-0 flex-1 gap-5 overflow-y-auto py-4">
 				<div className="grid gap-4 sm:grid-cols-[1fr_auto]">
 					<Field data-invalid={(triedSubmit && !title.trim()) || undefined}>
 						<FieldLabel htmlFor="token-title">Name</FieldLabel>
@@ -372,25 +369,12 @@ function CreateTokenForm({
 					<Field data-invalid={!expiryValid || undefined}>
 						<FieldLabel>Expires</FieldLabel>
 						<div className="flex gap-2">
-							<Select value={expiry} onValueChange={setExpiry}>
-								<SelectTrigger className="w-36">
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									{EXPIRY.map(o => (
-										<SelectItem key={o.value} value={o.value}>
-											{o.label}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
+							<SelectMenu label="Expires" options={EXPIRY} value={expiry} onValueChange={setExpiry} />
 							{expiry === 'custom' && (
 								<Popover>
-									<PopoverTrigger asChild>
-										<Button variant="outline" className="font-normal">
-											<CalendarIcon />
-											{customDate ? format(customDate, 'MMM d, yyyy') : 'Pick a date'}
-										</Button>
+									<PopoverTrigger render={<Button className="font-normal" />}>
+										<CalendarIcon />
+										{customDate ? format(customDate, 'MMM d, yyyy') : 'Pick a date'}
 									</PopoverTrigger>
 									<PopoverContent className="w-auto p-0" align="end">
 										<Calendar
@@ -422,8 +406,8 @@ function CreateTokenForm({
 								<Button
 									key={p.id}
 									type="button"
-									size="xs"
-									variant={preset === p.id ? 'secondary' : 'ghost'}
+									size="sm"
+									tone={preset === p.id ? 'primary' : 'secondary'}
 									disabled={!routes}
 									onClick={() => {
 										setSelection(applyScopes(routes!, p.groups))
@@ -435,8 +419,7 @@ function CreateTokenForm({
 							))}
 							<Button
 								type="button"
-								size="xs"
-								variant="ghost"
+								size="sm"
 								className="text-muted-foreground"
 								disabled={!count}
 								onClick={() => toggleAll(false)}
@@ -454,11 +437,10 @@ function CreateTokenForm({
 						</div>
 					) : (
 						<>
-							<label className="flex items-center gap-2 rounded-lg border border-dashed px-3 py-2 text-sm">
-								<Checkbox checked={count === allPerms} onCheckedChange={v => toggleAll(v === true)} />
-								<span className="font-medium">Select all</span>
+							<div className="flex items-center gap-2 rounded-lg border border-dashed px-3 py-2 text-sm">
+								<Checkbox label="Select all" checked={count === allPerms} onCheckedChange={toggleAll} />
 								<span className="text-xs text-muted-foreground">every scope the API offers</span>
-							</label>
+							</div>
 							<div className="grid items-start gap-2 sm:grid-cols-2">
 								{Object.entries(routes).map(([g, perms]) => {
 									const picked = sel[g]?.size ?? 0
@@ -467,13 +449,18 @@ function CreateTokenForm({
 											key={g}
 											className={cn('rounded-lg border p-3 transition-colors', picked > 0 && 'border-primary/30 bg-muted/40')}
 										>
-											<label className="mb-2 flex items-center gap-2 text-sm">
-												<Checkbox checked={picked === perms.length} onCheckedChange={v => toggleGroup(g, v === true)} />
-												<span className="flex-1 font-medium">{humanGroup(g)}</span>
+											<div className="mb-2 flex items-center gap-2 text-sm">
+												<span className="flex-1">
+													<Checkbox
+														label={humanGroup(g)}
+														checked={picked === perms.length}
+														onCheckedChange={v => toggleGroup(g, v)}
+													/>
+												</span>
 												<span className="text-xs text-muted-foreground tabular-nums">
 													{picked}/{perms.length}
 												</span>
-											</label>
+											</div>
 											<div className="flex flex-wrap gap-1.5">
 												{perms.map(p => {
 													const on = !!sel[g]?.has(p)
@@ -504,14 +491,14 @@ function CreateTokenForm({
 					)}
 				</div>
 			</div>
-			<DialogFooter className="mx-0 mb-0">
-				<Button type="button" variant="outline" onClick={onCancel}>
+			<DialogActions>
+				<Button type="button" onClick={onCancel}>
 					Cancel
 				</Button>
-				<Button type="submit" disabled={create.isPending}>
+				<Button type="submit" tone="primary" disabled={create.isPending}>
 					Create token
 				</Button>
-			</DialogFooter>
+			</DialogActions>
 		</form>
 	)
 }
@@ -521,12 +508,10 @@ function CreatedToken({token, onDone}: {token: ApiToken; onDone: () => void}) {
 	const curl = `curl -H "Authorization: Bearer ${token.token}" ${apiBase}/tasks`
 	return (
 		<>
-			<DialogHeader>
-				<DialogTitle>Token created</DialogTitle>
-				<DialogDescription>
-					Copy <span className="font-medium text-foreground">{token.title}</span> now. You won't be able to see it again.
-				</DialogDescription>
-			</DialogHeader>
+			<DialogTitle>Token created</DialogTitle>
+			<DialogDescription>
+				Copy <span className="font-medium text-foreground">{token.title}</span> now. You won't be able to see it again.
+			</DialogDescription>
 			<div className="grid gap-4">
 				<SecretBox value={token.token ?? ''} />
 				<div className="grid gap-2">
@@ -542,9 +527,11 @@ function CreatedToken({token, onDone}: {token: ApiToken; onDone: () => void}) {
 					</pre>
 				</div>
 			</div>
-			<DialogFooter>
-				<Button onClick={onDone}>Done</Button>
-			</DialogFooter>
+			<DialogActions>
+				<Button tone="primary" onClick={onDone}>
+					Done
+				</Button>
+			</DialogActions>
 		</>
 	)
 }

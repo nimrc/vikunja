@@ -3,13 +3,13 @@ import {useQuery} from '@tanstack/react-query'
 import {CheckIcon} from 'lucide-react'
 import {toast} from 'sonner'
 import {projectsUsersSearch, taskAssigneesCreate, taskAssigneesDelete, type Task, type User} from '@/client/generated'
-import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
+import {Avatar} from '@/components/ui/avatar'
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from '@/components/ui/command'
 import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover'
 import {Spinner} from '@/components/ui/spinner'
 import {errorMessage} from '@/lib/api'
 import {useAvatarSrc} from '@/lib/avatar'
-import {displayName, initials} from '@/lib/format'
+import {displayName} from '@/lib/format'
 import {invalidateTasks} from '@/lib/queries'
 import {cn} from '@/lib/utils'
 import {patchDetail} from './labels'
@@ -17,10 +17,9 @@ import {Placeholder, useDebounced, valueButton} from './shared'
 
 export function UserChip({user, className}: {user: User; className?: string}) {
 	return (
-		<Avatar className={cn('size-5', className)}>
-			<AvatarImage src={useAvatarSrc(user, 40)} alt="" />
-			<AvatarFallback className="text-[9px]">{initials(user)}</AvatarFallback>
-		</Avatar>
+		<span className={cn('inline-flex shrink-0', className)}>
+			<Avatar name={displayName(user)} src={useAvatarSrc(user, 40)} size="sm" />
+		</span>
 	)
 }
 
@@ -67,21 +66,19 @@ export function AssigneesValue({task, disabled}: {task: Task; disabled?: boolean
 				if (!o) setSearch('')
 			}}
 		>
-			<PopoverTrigger asChild disabled={disabled}>
-				<button type="button" className={valueButton}>
-					{current.length ? (
-						<span className="flex flex-col gap-1">
-							{current.map(u => (
-								<span key={u.id} className="flex items-center gap-2">
-									<UserChip user={u} />
-									<span className="truncate">{displayName(u)}</span>
-								</span>
-							))}
-						</span>
-					) : (
-						<Placeholder>Assign</Placeholder>
-					)}
-				</button>
+			<PopoverTrigger disabled={disabled} className={valueButton}>
+				{current.length ? (
+					<span className="flex flex-col gap-1">
+						{current.map(u => (
+							<span key={u.id} className="flex items-center gap-2">
+								<UserChip user={u} />
+								<span className="truncate">{displayName(u)}</span>
+							</span>
+						))}
+					</span>
+				) : (
+					<Placeholder>Assign</Placeholder>
+				)}
 			</PopoverTrigger>
 			<PopoverContent className="w-64 p-0" align="end">
 				<Command shouldFilter={false}>
