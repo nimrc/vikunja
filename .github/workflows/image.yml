@@ -2,7 +2,7 @@ name: image
 
 on:
   push:
-    branches: [shadcn]
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -35,6 +35,6 @@ jobs:
           build-args: RELEASE_VERSION=${{ steps.version.outputs.version }}
           tags: |
             ghcr.io/${{ github.repository }}:${{ github.sha }}
-            ghcr.io/${{ github.repository }}:shadcn
+            ghcr.io/${{ github.repository }}:main
           cache-from: type=gha
           cache-to: type=gha,mode=max
