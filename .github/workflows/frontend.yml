@@ -3,7 +3,7 @@ name: frontend
 on:
   pull_request:
   push:
-    branches: [shadcn]
+    branches: [main]
 
 permissions:
   contents: read
