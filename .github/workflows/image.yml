@@ -3,6 +3,7 @@ name: image
 on:
   push:
     branches: [shadcn]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -18,6 +19,7 @@ jobs:
           fetch-depth: 0
       - uses: docker/setup-buildx-action@v3
       - uses: docker/login-action@v3
+        if: github.event_name != 'pull_request'
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -29,7 +31,7 @@ jobs:
         with:
           context: .
           platforms: linux/amd64
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           build-args: RELEASE_VERSION=${{ steps.version.outputs.version }}
           tags: |
             ghcr.io/${{ github.repository }}:${{ github.sha }}
