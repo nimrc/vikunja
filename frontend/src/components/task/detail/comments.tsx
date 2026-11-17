@@ -3,22 +3,18 @@ import {MessageSquareIcon, MoreHorizontalIcon, PencilIcon, Trash2Icon} from 'luc
 import {toast} from 'sonner'
 import {taskCommentsCreate, taskCommentsDelete, taskCommentsUpdate, type Task, type TaskComment} from '@/client/generated'
 import {RichTextEditor} from '@/components/editor'
-import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
+import {Avatar} from '@/components/ui/avatar'
 import {Button} from '@/components/ui/button'
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from '@/components/ui/dropdown-menu'
-import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip'
 import {errorMessage} from '@/lib/api'
 import {useAvatarSrc} from '@/lib/avatar'
-import {displayName, formatDateTime, initials, parseDate, relative} from '@/lib/format'
+import {displayName, formatDateTime, parseDate, relative} from '@/lib/format'
 import {invalidateTasks, useCurrentUser} from '@/lib/queries'
 import {ConfirmDialog, SectionHeader} from './shared'
 
 function CommentAvatar({user}: {user?: TaskComment['author']}) {
 	return (
-		<Avatar className="size-7">
-			<AvatarImage src={useAvatarSrc(user, 56)} alt="" />
-			<AvatarFallback className="text-[10px]">{initials(user)}</AvatarFallback>
-		</Avatar>
+		<Avatar name={displayName(user)} src={useAvatarSrc(user, 56)} size="sm" />
 	)
 }
 
@@ -95,25 +91,24 @@ function CommentItem({taskId, comment, own}: {taskId: number; comment: TaskComme
 				<div className="flex items-center gap-2 text-xs">
 					<span className="font-medium">{displayName(comment.author)}</span>
 					{created && (
-						<Tooltip>
-							<TooltipTrigger asChild>
-								<span className="text-muted-foreground">{relative(created)}</span>
-							</TooltipTrigger>
-							<TooltipContent>{formatDateTime(created)}</TooltipContent>
-						</Tooltip>
+						<span className="text-muted-foreground" title={formatDateTime(created)}>
+							{relative(created)}
+						</span>
 					)}
 					{edited && updated && (
-						<Tooltip>
-							<TooltipTrigger asChild>
-								<span className="text-muted-foreground">· edited</span>
-							</TooltipTrigger>
-							<TooltipContent>{formatDateTime(updated)}</TooltipContent>
-						</Tooltip>
+						<span className="text-muted-foreground" title={formatDateTime(updated)}>
+							· edited
+						</span>
 					)}
 					{own && !editing && (
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
-								<Button variant="ghost" size="icon-xs" className="-mr-1 ml-auto text-muted-foreground" aria-label="Comment actions">
+								<Button
+									round
+									size="sm"
+									className="-mr-1 ml-auto text-muted-foreground"
+									aria-label="Comment actions"
+								>
 									<MoreHorizontalIcon />
 								</Button>
 							</DropdownMenuTrigger>

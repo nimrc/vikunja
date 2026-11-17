@@ -1,11 +1,11 @@
 import {useState} from 'react'
 import {useMutation} from '@tanstack/react-query'
-import {AlertTriangleIcon, ClockIcon} from 'lucide-react'
+import {ClockIcon} from 'lucide-react'
 import {toast} from 'sonner'
 import {userDeletionCancel, userDeletionRequest} from '@/client/generated'
-import {Alert, AlertDescription, AlertTitle} from '@/components/ui/alert'
+import {Alert} from '@/components/ui/alert'
 import {Button} from '@/components/ui/button'
-import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from '@/components/ui/card'
+import {Card} from '@/components/ui/card'
 import {Field, FieldLabel} from '@/components/ui/field'
 import {Input} from '@/components/ui/input'
 import {formatDateTime, parseDate, relative} from '@/lib/format'
@@ -52,53 +52,61 @@ export default function DeleteAccount() {
 		<>
 			<SettingsHeader title="Delete account" description="Permanently remove your account and everything you own." />
 			{scheduled ? (
-				<Card>
-					<CardHeader>
-						<CardTitle className="flex items-center gap-2">
+				<Card
+					title={
+						<span className="flex items-center gap-2">
 							<ClockIcon className="size-4" />
 							Deletion scheduled
-						</CardTitle>
-						<CardDescription>
+						</span>
+					}
+					aria-label="Deletion scheduled"
+					description={
+						<>
 							Your account will be deleted{' '}
 							<span className="font-medium text-foreground" title={formatDateTime(scheduled)}>
 								{relative(scheduled)}
 							</span>
 							. Changed your mind? Cancel it below.
-						</CardDescription>
-					</CardHeader>
-					{local && <CardContent>{passwordField}</CardContent>}
-					<CardFooter className="justify-end border-t">
-						<Button disabled={(local && !password) || cancel.isPending} onClick={() => cancel.mutate()}>
-							Cancel deletion
-						</Button>
-					</CardFooter>
+						</>
+					}
+					footer={
+						<div className="flex justify-end">
+							<Button
+								tone="primary"
+								disabled={(local && !password) || cancel.isPending}
+								onClick={() => cancel.mutate()}
+							>
+								Cancel deletion
+							</Button>
+						</div>
+					}
+				>
+					{passwordField}
 				</Card>
 			) : (
-				<Card className="ring-destructive/30">
-					<CardHeader>
-						<CardTitle>Delete my account</CardTitle>
-						<CardDescription>We'll email you a confirmation link. After confirming, deletion happens in 3 days.</CardDescription>
-					</CardHeader>
-					<CardContent className="grid gap-4">
-						<Alert variant="destructive">
-							<AlertTriangleIcon />
-							<AlertTitle>This cannot be undone</AlertTitle>
-							<AlertDescription>
-								All projects you own, their tasks, comments and attachments are deleted. Projects shared with you stay
-								with their owners.
-							</AlertDescription>
+				<Card
+					className="ring-destructive/30"
+					title="Delete my account"
+					description="We'll email you a confirmation link. After confirming, deletion happens in 3 days."
+					footer={
+						<div className="flex justify-end">
+							<Button
+								tone="danger"
+								disabled={(local && !password) || request.isPending}
+								onClick={() => request.mutate()}
+							>
+								Request deletion
+							</Button>
+						</div>
+					}
+				>
+					<div className="grid gap-4">
+						<Alert tone="danger" title="This cannot be undone">
+							All projects you own, their tasks, comments and attachments are deleted. Projects shared with you stay
+							with their owners.
 						</Alert>
 						{passwordField}
-					</CardContent>
-					<CardFooter className="justify-end border-t">
-						<Button
-							variant="destructive"
-							disabled={(local && !password) || request.isPending}
-							onClick={() => request.mutate()}
-						>
-							Request deletion
-						</Button>
-					</CardFooter>
+					</div>
 				</Card>
 			)}
 		</>

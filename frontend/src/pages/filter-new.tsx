@@ -4,7 +4,7 @@ import {useNavigate} from 'react-router'
 import {toast} from 'sonner'
 import {filtersCreate} from '@/client/generated'
 import {Button} from '@/components/ui/button'
-import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from '@/components/ui/card'
+import {Card} from '@/components/ui/card'
 import {Spinner} from '@/components/ui/spinner'
 import {FilterFields} from '@/pages/project/project-settings'
 import {invalidateProjects} from '@/lib/queries'
@@ -33,20 +33,19 @@ export default function FilterNew() {
 	return (
 		<div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 md:p-6">
 			<h1 className="text-2xl font-semibold tracking-tight">New saved filter</h1>
-			<Card>
-				<CardHeader>
-					<CardTitle>Filter</CardTitle>
-					<CardDescription>Shows matching tasks from all your projects in the sidebar.</CardDescription>
-				</CardHeader>
-				<CardContent>
-					<FilterFields value={value} onChange={setValue} />
-				</CardContent>
-				<CardFooter className="justify-end border-t">
-					<Button onClick={() => create.mutate()} disabled={!value.title.trim() || create.isPending}>
-						{create.isPending && <Spinner />}
-						Create filter
-					</Button>
-				</CardFooter>
+			<Card
+				title="Filter"
+				description="Shows matching tasks from all your projects in the sidebar."
+				footer={
+					<div className="flex justify-end">
+						<Button tone="primary" onClick={() => create.mutate()} disabled={!value.title.trim() || create.isPending}>
+							{create.isPending && <Spinner />}
+							Create filter
+						</Button>
+					</div>
+				}
+			>
+				<FilterFields value={value} onChange={setValue} />
 			</Card>
 		</div>
 	)

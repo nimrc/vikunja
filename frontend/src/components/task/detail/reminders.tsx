@@ -4,8 +4,8 @@ import type {Task, TaskReminder} from '@/client/generated'
 import {Button} from '@/components/ui/button'
 import {Input} from '@/components/ui/input'
 import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover'
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select'
-import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs'
+import {SelectMenu} from '@/components/ui/select'
+import {Tabs} from '@/components/ui/tabs'
 import {formatDateTime, parseDate, toApiDate} from '@/lib/format'
 import {cn} from '@/lib/utils'
 import {DateTimePicker} from './date-picker'
@@ -57,21 +57,19 @@ export function RemindersValue({
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
-			<PopoverTrigger asChild disabled={disabled}>
-				<button type="button" className={cn(valueButton, 'items-start')}>
-					{reminders.length ? (
-						<span className="flex min-w-0 flex-col gap-0.5">
-							{reminders.map((r, i) => (
-								<span key={i} className="flex items-center gap-1.5 truncate">
-									<BellIcon className="text-muted-foreground" />
-									{reminderLabel(r)}
-								</span>
-							))}
-						</span>
-					) : (
-						<Placeholder>Add reminder</Placeholder>
-					)}
-				</button>
+			<PopoverTrigger disabled={disabled} render={<button type="button" className={cn(valueButton, 'items-start')} />}>
+				{reminders.length ? (
+					<span className="flex min-w-0 flex-col gap-0.5">
+						{reminders.map((r, i) => (
+							<span key={i} className="flex items-center gap-1.5 truncate">
+								<BellIcon className="text-muted-foreground" />
+								{reminderLabel(r)}
+							</span>
+						))}
+					</span>
+				) : (
+					<Placeholder>Add reminder</Placeholder>
+				)}
 			</PopoverTrigger>
 			<PopoverContent className="w-80 p-0" align="end">
 				{reminders.length > 0 && (
@@ -81,8 +79,8 @@ export function RemindersValue({
 								<BellIcon className="size-3.5 text-muted-foreground" />
 								<span className="flex-1 truncate">{reminderLabel(r)}</span>
 								<Button
-									variant="ghost"
-									size="icon-xs"
+									round
+									size="sm"
 									aria-label="Remove reminder"
 									onClick={() => onChange(reminders.filter((_, j) => j !== i))}
 								>
@@ -117,88 +115,90 @@ function AddReminder({task, onAdd}: {task: Task; onAdd: (r: TaskReminder) => voi
 		onAdd({relative_to: relativeTo, relative_period: direction === 'before' ? -secs : secs})
 	}
 
-	return (
-		<Tabs value={tab} onValueChange={v => setTab(v as typeof tab)} className="gap-0">
-			<div className="p-2 pb-0">
-				<TabsList className="w-full">
-					<TabsTrigger value="relative">Relative</TabsTrigger>
-					<TabsTrigger value="date">Date & time</TabsTrigger>
-				</TabsList>
-			</div>
-			<TabsContent value="relative" className="flex flex-col gap-2 p-2">
-				<div className="flex gap-2">
-					<Input
-						type="number"
-						min={0}
-						value={amount}
-						onChange={e => setAmount(e.target.value)}
-						className="h-8 w-20"
-						aria-label="Amount"
+	const relative = (
+		<div className="flex flex-col gap-2 p-2">
+			<div className="flex gap-2">
+				<Input
+					type="number"
+					min={0}
+					value={amount}
+					onChange={e => setAmount(e.target.value)}
+					className="h-8 w-20"
+					aria-label="Amount"
+				/>
+				<div className="flex-1">
+					<SelectMenu
+						label="Unit"
+						options={UNITS.map(u => ({value: u.value, label: u.label}))}
+						value={unit}
+						onValueChange={v => setUnit(v as typeof unit)}
 					/>
-					<Select value={unit} onValueChange={v => setUnit(v as typeof unit)}>
-						<SelectTrigger size="sm" className="flex-1">
-							<SelectValue />
-						</SelectTrigger>
-						<SelectContent>
-							{UNITS.map(u => (
-								<SelectItem key={u.value} value={u.value}>
-									{u.label}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
 				</div>
-				<div className="flex gap-2">
-					<Select value={direction} onValueChange={v => setDirection(v as typeof direction)}>
-						<SelectTrigger size="sm" className="w-24">
-							<SelectValue />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="before">before</SelectItem>
-							<SelectItem value="after">after</SelectItem>
-						</SelectContent>
-					</Select>
-					<Select value={relativeTo} onValueChange={setRelativeTo}>
-						<SelectTrigger size="sm" className="flex-1">
-							<SelectValue />
-						</SelectTrigger>
-						<SelectContent>
-							{RELATIVE_TO.map(r => (
-								<SelectItem key={r.value} value={r.value}>
-									{r.label}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
+			</div>
+			<div className="flex gap-2">
+				<div className="w-24">
+					<SelectMenu
+						label="Direction"
+						options={[
+							{value: 'before', label: 'before'},
+							{value: 'after', label: 'after'},
+						]}
+						value={direction}
+						onValueChange={v => setDirection(v as typeof direction)}
+					/>
 				</div>
-				{relMissing && (
-					<p className="text-xs text-muted-foreground">
-						The task has no {relField.label} yet; the reminder fires once it is set.
-					</p>
-				)}
-				<Button size="sm" onClick={addRelative}>
+				<div className="flex-1">
+					<SelectMenu
+						label="Relative to"
+						options={RELATIVE_TO.map(r => ({value: r.value, label: r.label}))}
+						value={relativeTo}
+						onValueChange={setRelativeTo}
+					/>
+				</div>
+			</div>
+			{relMissing && (
+				<p className="text-xs text-muted-foreground">
+					The task has no {relField.label} yet; the reminder fires once it is set.
+				</p>
+			)}
+			<Button tone="primary" size="sm" onClick={addRelative}>
+				<PlusIcon />
+				Add reminder
+			</Button>
+		</div>
+	)
+
+	const absolute = (
+		<div className="flex flex-col">
+			<DateTimePicker value={date} onChange={setDate} clearable={false} />
+			<div className="p-2 pt-0">
+				<Button
+					tone="primary"
+					size="sm"
+					className="w-full"
+					disabled={!date}
+					onClick={() => {
+						if (!date) return
+						onAdd({reminder: toApiDate(date)})
+						setDate(null)
+					}}
+				>
 					<PlusIcon />
 					Add reminder
 				</Button>
-			</TabsContent>
-			<TabsContent value="date" className="flex flex-col">
-				<DateTimePicker value={date} onChange={setDate} clearable={false} />
-				<div className="p-2 pt-0">
-					<Button
-						size="sm"
-						className="w-full"
-						disabled={!date}
-						onClick={() => {
-							if (!date) return
-							onAdd({reminder: toApiDate(date)})
-							setDate(null)
-						}}
-					>
-						<PlusIcon />
-						Add reminder
-					</Button>
-				</div>
-			</TabsContent>
-		</Tabs>
+			</div>
+		</div>
+	)
+
+	return (
+		<Tabs
+			label="Reminder type"
+			items={[
+				{value: 'relative', label: 'Relative', body: relative},
+				{value: 'date', label: 'Date & time', body: absolute},
+			]}
+			value={tab}
+			onValueChange={v => setTab(v as typeof tab)}
+		/>
 	)
 }

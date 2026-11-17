@@ -18,8 +18,7 @@ import {
 	TagIcon,
 	UsersIcon,
 } from 'lucide-react'
-import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
-import {Collapsible, CollapsibleContent, CollapsibleTrigger} from '@/components/ui/collapsible'
+import {Avatar} from '@/components/ui/avatar'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -55,9 +54,10 @@ import {
 import {ColorDot} from '@/components/color-picker'
 import {ProjectCreateDialog} from '@/components/project-create-dialog'
 import {useAuth} from '@/lib/auth'
-import {defaultViewId, displayName, initials, isSavedFilter, projectTree, type ProjectNode} from '@/lib/format'
+import {defaultViewId, displayName, isSavedFilter, projectTree, type ProjectNode} from '@/lib/format'
 import {useAvatarSrc} from '@/lib/avatar'
 import {useCurrentUser, useProjects} from '@/lib/queries'
+import {cn} from '@/lib/utils'
 
 export function projectHref(p: {id?: number; views?: {id?: number; position?: number}[] | null}) {
 	const view = defaultViewId(p)
@@ -87,24 +87,24 @@ function ProjectItem({node, activeId}: {node: ProjectNode; activeId: number | nu
 	if (!node.children.length) return <SidebarMenuItem>{button}</SidebarMenuItem>
 
 	return (
-		<Collapsible asChild open={open} onOpenChange={setOpen}>
-			<SidebarMenuItem>
-				{button}
-				<CollapsibleTrigger asChild>
-					<SidebarMenuAction className="transition-transform data-[state=open]:rotate-90">
-						<ChevronRightIcon />
-						<span className="sr-only">Toggle</span>
-					</SidebarMenuAction>
-				</CollapsibleTrigger>
-				<CollapsibleContent>
-					<SidebarMenuSub className="mr-0 pr-0">
-						{node.children.map(c => (
-							<ProjectItem key={c.id} node={c} activeId={activeId} />
-						))}
-					</SidebarMenuSub>
-				</CollapsibleContent>
-			</SidebarMenuItem>
-		</Collapsible>
+		<SidebarMenuItem>
+			{button}
+			<SidebarMenuAction
+				aria-expanded={open}
+				onClick={() => setOpen(o => !o)}
+				className={cn('transition-transform', open && 'rotate-90')}
+			>
+				<ChevronRightIcon />
+				<span className="sr-only">Toggle</span>
+			</SidebarMenuAction>
+			{open && (
+				<SidebarMenuSub className="mr-0 pr-0">
+					{node.children.map(c => (
+						<ProjectItem key={c.id} node={c} activeId={activeId} />
+					))}
+				</SidebarMenuSub>
+			)}
+		</SidebarMenuItem>
 	)
 }
 
@@ -263,10 +263,7 @@ function UserMenu() {
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent">
-							<Avatar className="size-8 rounded-lg">
-								<AvatarImage src={avatarSrc} alt="" />
-								<AvatarFallback className="rounded-lg">{initials(user)}</AvatarFallback>
-							</Avatar>
+							<Avatar name={displayName(user)} src={avatarSrc} />
 							<div className="grid flex-1 text-left text-sm leading-tight">
 								<span className="truncate font-medium">{displayName(user)}</span>
 								<span className="truncate text-xs text-muted-foreground">{user?.email || `@${user?.username ?? ''}`}</span>

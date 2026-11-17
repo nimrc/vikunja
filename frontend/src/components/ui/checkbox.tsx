@@ -1,31 +1,46 @@
-"use client"
-
 import * as React from "react"
-import { cn } from "cn"
-import { Checkbox as CheckboxPrimitive } from "radix-ui"
-import { CheckIcon } from "lucide-react"
+import { Icon } from "@/components/ui/icon"
+import { Checkbox as SdkCheckbox, CheckboxIndicator } from "@ui-sdk/react/checkbox"
 
+// With an icon the latching key shows the icon on its cap and the label only
+// names it for screen readers. The kit sizes a bare key by its printed label,
+// so `hideLabel` falls back to a check icon.
 function Checkbox({
-  className,
-  ...props
-}: React.ComponentProps<typeof CheckboxPrimitive.Root>) {
+  label,
+  icon,
+  hideLabel,
+  checked,
+  defaultChecked,
+  disabled,
+  onCheckedChange,
+}: {
+  label: string
+  icon?: React.ComponentProps<typeof Icon>["name"]
+  hideLabel?: boolean
+  checked?: boolean
+  defaultChecked?: boolean
+  disabled?: boolean
+  onCheckedChange?: (checked: boolean) => void
+}) {
+  const glyph = icon ?? (hideLabel ? "check" : undefined)
   return (
-    <CheckboxPrimitive.Root
-      data-slot="checkbox"
-      className={cn(
-        "peer relative flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-input transition-colors outline-none group-has-disabled/field:opacity-50 group-has-[:focus-visible]/field-label:ring-0 group-has-[:focus-visible]/field-label:not-data-checked:border-input after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground group-has-[:focus-visible]/field-label:data-checked:border-primary dark:data-checked:bg-primary",
-        className
-      )}
-      {...props}
-    >
-      <CheckboxPrimitive.Indicator
-        data-slot="checkbox-indicator"
-        className="grid place-content-center text-current transition-none [&>svg]:size-3.5"
+    <label data-kit="check" data-icon={glyph ? "" : undefined}>
+      <SdkCheckbox
+        data-kit="checkbox"
+        checked={checked}
+        defaultChecked={defaultChecked}
+        disabled={disabled}
+        onCheckedChange={onCheckedChange && ((next) => onCheckedChange(next === true))}
       >
-        <CheckIcon
-        />
-      </CheckboxPrimitive.Indicator>
-    </CheckboxPrimitive.Root>
+        <CheckboxIndicator data-kit="checkbox-indicator" keepMounted />
+        {glyph && (
+          <span data-kit="check-icon" aria-hidden>
+            <Icon name={glyph} />
+          </span>
+        )}
+      </SdkCheckbox>
+      <span data-kit={glyph ? "visually-hidden" : "label"}>{label}</span>
+    </label>
   )
 }
 

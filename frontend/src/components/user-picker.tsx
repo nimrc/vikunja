@@ -2,23 +2,22 @@ import {useEffect, useState, type ReactNode} from 'react'
 import {useQuery} from '@tanstack/react-query'
 import {UserPlusIcon} from 'lucide-react'
 import {usersSearch, type User} from '@/client/generated'
-import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
+import {Avatar} from '@/components/ui/avatar'
 import {Button} from '@/components/ui/button'
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from '@/components/ui/command'
 import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover'
 import {Spinner} from '@/components/ui/spinner'
 import {useAvatarSrc} from '@/lib/avatar'
-import {displayName, initials} from '@/lib/format'
+import {displayName} from '@/lib/format'
 import {cn} from '@/lib/utils'
 
 /** Avatar without the hover tooltip, for rows that already print the name. */
 export function UserAvatarPlain({user, size = 32, className}: {user?: User | null; size?: number; className?: string}) {
 	const src = useAvatarSrc(user, size * 2)
 	return (
-		<Avatar className={cn('shrink-0', className)} style={{width: size, height: size}}>
-			<AvatarImage src={src} alt="" />
-			<AvatarFallback className="text-[10px]">{initials(user)}</AvatarFallback>
-		</Avatar>
+		<span className={cn('inline-flex shrink-0 rounded-full', className)}>
+			<Avatar name={displayName(user)} src={src} size={size > 40 ? undefined : 'sm'} />
+		</span>
 	)
 }
 
@@ -77,11 +76,9 @@ export function UserPicker({
 				if (!o) setQ('')
 			}}
 		>
-			<PopoverTrigger asChild>
-				<Button variant="outline" disabled={disabled}>
-					<UserPlusIcon />
-					{label}
-				</Button>
+			<PopoverTrigger disabled={disabled} render={<Button />}>
+				<UserPlusIcon />
+				{label}
 			</PopoverTrigger>
 			<PopoverContent className="w-72 p-0" align="end">
 				<Command shouldFilter={false}>

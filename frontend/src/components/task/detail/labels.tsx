@@ -56,18 +56,16 @@ export function LabelsValue({task, disabled}: {task: Task; disabled?: boolean}) 
 
 	return (
 		<Popover onOpenChange={o => !o && setSearch('')}>
-			<PopoverTrigger asChild disabled={disabled}>
-				<button type="button" className={valueButton}>
-					{current.length ? (
-						<span className="flex flex-wrap gap-1">
-							{current.map(l => (
-								<LabelBadge key={l.id} label={l} />
-							))}
-						</span>
-					) : (
-						<Placeholder>Add labels</Placeholder>
-					)}
-				</button>
+			<PopoverTrigger disabled={disabled} render={<button type="button" className={valueButton} />}>
+				{current.length ? (
+					<span className="flex flex-wrap gap-1">
+						{current.map(l => (
+							<LabelBadge key={l.id} label={l} />
+						))}
+					</span>
+				) : (
+					<Placeholder>Add labels</Placeholder>
+				)}
 			</PopoverTrigger>
 			<PopoverContent className="w-64 p-0" align="end">
 				<Command>

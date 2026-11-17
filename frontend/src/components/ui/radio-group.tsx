@@ -1,41 +1,45 @@
-import * as React from "react"
-import { cn } from "cn"
-import { RadioGroup as RadioGroupPrimitive } from "radix-ui"
+import { Field, FieldLabel } from "@ui-sdk/react/field"
+import { Radio, RadioGroup as SdkRadioGroup, RadioIndicator } from "@ui-sdk/react/radio"
+
+type Option = string | { value: string; label: string }
 
 function RadioGroup({
-  className,
-  ...props
-}: React.ComponentProps<typeof RadioGroupPrimitive.Root>) {
+  label,
+  options,
+  value,
+  defaultValue,
+  onValueChange,
+}: {
+  label: string
+  options: Option[]
+  value?: string
+  defaultValue?: string
+  onValueChange?: (value: string) => void
+}) {
   return (
-    <RadioGroupPrimitive.Root
-      data-slot="radio-group"
-      className={cn("grid w-full gap-2", className)}
-      {...props}
-    />
-  )
-}
-
-function RadioGroupItem({
-  className,
-  ...props
-}: React.ComponentProps<typeof RadioGroupPrimitive.Item>) {
-  return (
-    <RadioGroupPrimitive.Item
-      data-slot="radio-group-item"
-      className={cn(
-        "group/radio-group-item peer relative flex aspect-square size-4 shrink-0 rounded-full border border-input outline-none group-has-[:focus-visible]/field-label:ring-0 group-has-[:focus-visible]/field-label:not-data-checked:border-input after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground group-has-[:focus-visible]/field-label:data-checked:border-primary dark:data-checked:bg-primary",
-        className
-      )}
-      {...props}
-    >
-      <RadioGroupPrimitive.Indicator
-        data-slot="radio-group-indicator"
-        className="flex size-4 items-center justify-center"
+    <Field data-kit="field">
+      <FieldLabel data-kit="label">{label}</FieldLabel>
+      <SdkRadioGroup
+        data-kit="radio-group"
+        value={value}
+        defaultValue={defaultValue}
+        onValueChange={onValueChange && ((next) => next && onValueChange(String(next)))}
       >
-        <span className="absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-foreground" />
-      </RadioGroupPrimitive.Indicator>
-    </RadioGroupPrimitive.Item>
+        {options.map((option) => {
+          const { value: optionValue, label: optionLabel } =
+            typeof option === "string" ? { value: option, label: option } : option
+          return (
+            <label key={optionValue} data-kit="check" data-value={optionValue}>
+              <Radio value={optionValue} data-kit="radio">
+                <RadioIndicator data-kit="radio-indicator" keepMounted />
+              </Radio>
+              <span data-kit="label">{optionLabel}</span>
+            </label>
+          )
+        })}
+      </SdkRadioGroup>
+    </Field>
   )
 }
 
-export { RadioGroup, RadioGroupItem }
+export { RadioGroup }

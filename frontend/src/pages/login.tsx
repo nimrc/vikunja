@@ -1,7 +1,7 @@
 import {useState} from 'react'
 import {Navigate, useSearchParams} from 'react-router'
 import {Button} from '@/components/ui/button'
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card'
+import {Card} from '@/components/ui/card'
 import {Checkbox} from '@/components/ui/checkbox'
 import {Field, FieldError, FieldGroup, FieldLabel} from '@/components/ui/field'
 import {Input} from '@/components/ui/input'
@@ -58,63 +58,56 @@ export default function Login() {
 					</div>
 					Vikunja
 				</div>
-				<Card>
-					<CardHeader className="text-center">
-						<CardTitle className="text-xl">Welcome back</CardTitle>
-						<CardDescription>Sign in to your account</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<form onSubmit={submit}>
-							<FieldGroup>
+				<Card title="Welcome back" description="Sign in to your account">
+					<form onSubmit={submit}>
+						<FieldGroup>
+							<Field>
+								<FieldLabel htmlFor="username">Username or email</FieldLabel>
+								<Input
+									id="username"
+									autoComplete="username"
+									autoFocus
+									required
+									value={username}
+									onChange={e => setUsername(e.target.value)}
+								/>
+							</Field>
+							<Field>
+								<FieldLabel htmlFor="password">Password</FieldLabel>
+								<Input
+									id="password"
+									type="password"
+									autoComplete="current-password"
+									required
+									value={password}
+									onChange={e => setPassword(e.target.value)}
+								/>
+							</Field>
+							{needsTotp && (
 								<Field>
-									<FieldLabel htmlFor="username">Username or email</FieldLabel>
+									<FieldLabel htmlFor="totp">Two-factor code</FieldLabel>
 									<Input
-										id="username"
-										autoComplete="username"
+										id="totp"
+										inputMode="numeric"
+										autoComplete="one-time-code"
 										autoFocus
-										required
-										value={username}
-										onChange={e => setUsername(e.target.value)}
+										value={totp}
+										onChange={e => setTotp(e.target.value)}
 									/>
 								</Field>
-								<Field>
-									<FieldLabel htmlFor="password">Password</FieldLabel>
-									<Input
-										id="password"
-										type="password"
-										autoComplete="current-password"
-										required
-										value={password}
-										onChange={e => setPassword(e.target.value)}
-									/>
-								</Field>
-								{needsTotp && (
-									<Field>
-										<FieldLabel htmlFor="totp">Two-factor code</FieldLabel>
-										<Input
-											id="totp"
-											inputMode="numeric"
-											autoComplete="one-time-code"
-											autoFocus
-											value={totp}
-											onChange={e => setTotp(e.target.value)}
-										/>
-									</Field>
-								)}
-								<Field orientation="horizontal">
-									<Checkbox id="remember" checked={remember} onCheckedChange={v => setRemember(v === true)} />
-									<FieldLabel htmlFor="remember" className="font-normal">
-										Keep me signed in
-									</FieldLabel>
-								</Field>
-								{error && <FieldError>{error}</FieldError>}
-								<Button type="submit" className="w-full" disabled={pending}>
-									{pending && <Spinner />}
-									Sign in
-								</Button>
-							</FieldGroup>
-						</form>
-					</CardContent>
+							)}
+							<Checkbox
+								label="Keep me signed in"
+								checked={remember}
+								onCheckedChange={setRemember}
+							/>
+							{error && <FieldError>{error}</FieldError>}
+							<Button type="submit" tone="primary" className="w-full" disabled={pending}>
+								{pending && <Spinner />}
+								Sign in
+							</Button>
+						</FieldGroup>
+					</form>
 				</Card>
 			</div>
 		</div>

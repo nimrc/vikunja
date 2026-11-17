@@ -12,16 +12,7 @@ import {
 	PlusIcon,
 	Trash2Icon,
 } from 'lucide-react'
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+import {AlertDialog} from '@/components/ui/alert-dialog'
 import {Button} from '@/components/ui/button'
 import {
 	DropdownMenu,
@@ -33,7 +24,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import {Input} from '@/components/ui/input'
 import {Spinner} from '@/components/ui/spinner'
-import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip'
+import {Tooltip} from '@/components/ui/tooltip'
 import {cn} from '@/lib/utils'
 import {bucketFull, bucketHasMore, type BoardBucket} from './board-data'
 import {SortableTaskCard} from './task-card'
@@ -155,11 +146,8 @@ export function BucketColumn({
 				) : (
 					<>
 						{isDone && (
-							<Tooltip>
-								<TooltipTrigger asChild>
-									<CheckCircle2Icon className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
-								</TooltipTrigger>
-								<TooltipContent>Done bucket: tasks moved here are marked done</TooltipContent>
+							<Tooltip label="Done bucket: tasks moved here are marked done" render={<span />}>
+								<CheckCircle2Icon className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
 							</Tooltip>
 						)}
 						<h3
@@ -177,17 +165,14 @@ export function BucketColumn({
 							{bucket.limit > 0 ? `${bucket.count}/${bucket.limit}` : bucket.count}
 						</span>
 						{isDefault && (
-							<Tooltip>
-								<TooltipTrigger asChild>
-									<InboxIcon className="size-3.5 shrink-0 text-muted-foreground" />
-								</TooltipTrigger>
-								<TooltipContent>Default bucket: new tasks land here</TooltipContent>
+							<Tooltip label="Default bucket: new tasks land here" render={<span />}>
+								<InboxIcon className="size-3.5 shrink-0 text-muted-foreground" />
 							</Tooltip>
 						)}
 						<div className="ml-auto flex items-center">
 							<DropdownMenu>
 								<DropdownMenuTrigger asChild>
-									<Button variant="ghost" size="icon-sm" className="text-muted-foreground" aria-label="Bucket actions">
+									<Button round className="text-muted-foreground" aria-label="Bucket actions">
 										<MoreHorizontalIcon />
 									</Button>
 								</DropdownMenuTrigger>
@@ -203,10 +188,10 @@ export function BucketColumn({
 												Set limit
 											</DropdownMenuItem>
 											<DropdownMenuSeparator />
-											<DropdownMenuCheckboxItem checked={isDone} onSelect={actions.toggleDone}>
+											<DropdownMenuCheckboxItem checked={isDone} onCheckedChange={actions.toggleDone}>
 												Done bucket
 											</DropdownMenuCheckboxItem>
-											<DropdownMenuCheckboxItem checked={isDefault} onSelect={actions.toggleDefault}>
+											<DropdownMenuCheckboxItem checked={isDefault} onCheckedChange={actions.toggleDefault}>
 												Default bucket
 											</DropdownMenuCheckboxItem>
 											<DropdownMenuSeparator />
@@ -272,7 +257,6 @@ export function BucketColumn({
 						/>
 					) : (
 						<Button
-							variant="ghost"
 							size="sm"
 							className="w-full justify-start text-muted-foreground"
 							disabled={full}
@@ -285,22 +269,14 @@ export function BucketColumn({
 				</div>
 			)}
 
-			<AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
-				<AlertDialogContent size="sm">
-					<AlertDialogHeader>
-						<AlertDialogTitle>Delete “{bucket.title}”?</AlertDialogTitle>
-						<AlertDialogDescription>
-							Its tasks are not deleted; they move to the default bucket.
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<AlertDialogAction variant="destructive" onClick={actions.remove}>
-							Delete
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+			<AlertDialog
+				open={confirmDelete}
+				onOpenChange={setConfirmDelete}
+				title={`Delete “${bucket.title}”?`}
+				description="Its tasks are not deleted; they move to the default bucket."
+				confirm="Delete"
+				onConfirm={actions.remove}
+			/>
 		</div>
 	)
 }

@@ -5,7 +5,6 @@ import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
 import {Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle} from '@/components/ui/empty'
 import {InputGroup, InputGroupAddon, InputGroupInput} from '@/components/ui/input-group'
-import {Label} from '@/components/ui/label'
 import {Skeleton} from '@/components/ui/skeleton'
 import {Switch} from '@/components/ui/switch'
 import {ColorDot} from '@/components/color-picker'
@@ -40,26 +39,19 @@ export default function Projects() {
 					<p className="text-sm text-muted-foreground">Everything you have access to.</p>
 				</div>
 				<div className="flex flex-wrap items-center gap-3">
-					<div className="flex items-center gap-2">
-						<Switch id="show-archived" checked={showArchived} onCheckedChange={setShowArchived} />
-						<Label htmlFor="show-archived" className="font-normal">
-							Show archived
-						</Label>
-					</div>
+					<Switch label="Show archived" checked={showArchived} onCheckedChange={setShowArchived} />
 					<InputGroup className="w-48">
 						<InputGroupAddon>
 							<SearchIcon />
 						</InputGroupAddon>
 						<InputGroupInput placeholder="Search…" value={search} onChange={e => setSearch(e.target.value)} />
 					</InputGroup>
-					<Button variant="outline" asChild>
-						<Link to="/filters/new">
-							<FilterIcon />
-							New filter
-						</Link>
+					<Button render={<Link to="/filters/new" />}>
+						<FilterIcon />
+						New filter
 					</Button>
 					<ProjectCreateDialog>
-						<Button>
+						<Button tone="primary">
 							<PlusIcon />
 							New project
 						</Button>
@@ -108,7 +100,7 @@ function ProjectCard({project}: {project: ProjectNode}) {
 					<span className="truncate font-medium">{project.title}</span>
 					{project.is_favorite && <StarIcon className="size-3.5 shrink-0 fill-amber-400 text-amber-400" />}
 					{project.is_archived && (
-						<Badge variant="secondary" className="gap-1">
+						<Badge tone="neutral" className="gap-1">
 							<ArchiveIcon className="size-3" />
 							Archived
 						</Badge>
@@ -138,8 +130,7 @@ function ProjectCard({project}: {project: ProjectNode}) {
 			<div className="absolute top-2 right-2 z-10 opacity-0 transition-opacity group-hover:opacity-100 has-[[data-state=open]]:opacity-100">
 				<ProjectActionsMenu project={project}>
 					<Button
-						variant="secondary"
-						size="icon-sm"
+						round
 						className="shadow-sm"
 						aria-label="Project actions"
 					>

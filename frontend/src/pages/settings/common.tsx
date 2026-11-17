@@ -20,8 +20,6 @@ export function CopyButton({value, label = 'Copy', className}: {value: string; l
 	const [copied, setCopied] = useState(false)
 	return (
 		<Button
-			type="button"
-			variant="outline"
 			size="sm"
 			className={className}
 			onClick={async () => {

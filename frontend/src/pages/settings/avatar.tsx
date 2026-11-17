@@ -5,14 +5,12 @@ import {toast} from 'sonner'
 import {userAvatarUpload, userGetAvatarProvider, userSetAvatarProvider} from '@/client/generated'
 import {UserAvatarPlain} from '@/components/user-picker'
 import {Button} from '@/components/ui/button'
-import {Card, CardContent} from '@/components/ui/card'
-import {Label} from '@/components/ui/label'
-import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group'
+import {Card} from '@/components/ui/card'
+import {RadioGroup} from '@/components/ui/radio-group'
 import {Skeleton} from '@/components/ui/skeleton'
 import {invalidateAvatars} from '@/lib/avatar'
 import {displayName} from '@/lib/format'
 import {queryClient, useCurrentUser} from '@/lib/queries'
-import {cn} from '@/lib/utils'
 import {SettingsHeader} from './common'
 
 const PROVIDERS = [
@@ -70,7 +68,7 @@ export default function AvatarSettings() {
 		<>
 			<SettingsHeader title="Avatar" description="Shown next to your comments, assignments and in shared projects." />
 			<Card>
-				<CardContent className="grid gap-6 sm:grid-cols-[auto_1fr]">
+				<div className="grid gap-6 sm:grid-cols-[auto_1fr]">
 					<div className="flex flex-col items-center gap-3 sm:w-40">
 						<UserAvatarPlain user={user} size={96} className="text-2xl" />
 						<div className="text-center text-sm">
@@ -81,51 +79,35 @@ export default function AvatarSettings() {
 					{isLoading ? (
 						<Skeleton className="h-60" />
 					) : (
-						<RadioGroup
-							value={current}
-							onValueChange={v => {
-								// Upload only takes effect once a file is chosen.
-								if (v === 'upload') {
-									fileRef.current?.click()
-									return
-								}
-								setPicked(v)
-								setProvider.mutate(v)
-							}}
-							className="gap-2"
-						>
-							{PROVIDERS.map(p => (
-								<Label
-									key={p.id}
-									htmlFor={`avatar-${p.id}`}
-									className={cn(
-										'flex cursor-pointer items-center gap-3 rounded-lg border p-3 font-normal transition-colors hover:bg-muted/50',
-										current === p.id && 'border-primary/50 bg-muted/50',
-									)}
+						<div className="grid gap-3">
+							<RadioGroup
+								label="Avatar provider"
+								options={PROVIDERS.map(p => ({
+									value: p.id,
+									label: `${p.label} — ${p.hint}`,
+								}))}
+								value={current}
+								onValueChange={v => {
+									// Upload only takes effect once a file is chosen.
+									if (v === 'upload') {
+										fileRef.current?.click()
+										return
+									}
+									setPicked(v)
+									setProvider.mutate(v)
+								}}
+							/>
+							<div>
+								<Button
+									size="sm"
+									disabled={upload.isPending}
+									onClick={() => fileRef.current?.click()}
 								>
-									<RadioGroupItem id={`avatar-${p.id}`} value={p.id} />
-									<span className="grid flex-1 gap-0.5">
-										<span className="text-sm font-medium">{p.label}</span>
-										<span className="text-xs text-muted-foreground">{p.hint}</span>
-									</span>
-									{p.id === 'upload' && (
-										<Button
-											type="button"
-											size="sm"
-											variant="outline"
-											disabled={upload.isPending}
-											onClick={e => {
-												e.preventDefault()
-												fileRef.current?.click()
-											}}
-										>
-											<UploadIcon />
-											{upload.isPending ? 'Uploading…' : 'Choose image'}
-										</Button>
-									)}
-								</Label>
-							))}
-						</RadioGroup>
+									<UploadIcon />
+									{upload.isPending ? 'Uploading…' : 'Choose image'}
+								</Button>
+							</div>
+						</div>
 					)}
 					<input
 						ref={fileRef}
@@ -138,7 +120,7 @@ export default function AvatarSettings() {
 							if (f) upload.mutate(f)
 						}}
 					/>
-				</CardContent>
+				</div>
 			</Card>
 		</>
 	)

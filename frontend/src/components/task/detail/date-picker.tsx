@@ -57,15 +57,14 @@ export function DateTimePicker({
 		<div className="flex flex-col">
 			<div className="flex flex-wrap gap-1 p-2 pb-0">
 				{picks.map(p => (
-					<Button key={p.label} variant="secondary" size="xs" onClick={() => pick(p.date)}>
+					<Button key={p.label} size="sm" onClick={() => pick(p.date)}>
 						{p.label}
 						<span className="text-muted-foreground">{format(p.date, 'EEE')}</span>
 					</Button>
 				))}
 				{clearable && value && (
 					<Button
-						variant="ghost"
-						size="xs"
+						size="sm"
 						className="text-muted-foreground"
 						onClick={() => {
 							setTime('')
@@ -129,11 +128,9 @@ export function DateValue({
 	const overdue = warnOverdue && isOverdue(value, done)
 	return (
 		<Popover>
-			<PopoverTrigger asChild disabled={disabled}>
-				<button type="button" className={cn(valueButton, overdue && 'text-destructive')}>
-					{icon}
-					{value ? <span className="truncate">{formatDue(value)}</span> : <Placeholder>{placeholder}</Placeholder>}
-				</button>
+			<PopoverTrigger disabled={disabled} className={cn(valueButton, overdue && 'text-destructive')}>
+				{icon}
+				{value ? <span className="truncate">{formatDue(value)}</span> : <Placeholder>{placeholder}</Placeholder>}
 			</PopoverTrigger>
 			<PopoverContent className="w-auto p-0" align="end">
 				<DateTimePicker value={value} onChange={onChange} />

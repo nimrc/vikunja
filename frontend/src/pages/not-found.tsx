@@ -9,9 +9,7 @@ export default function NotFound() {
 				<EmptyTitle className="text-4xl font-semibold tracking-tight">404</EmptyTitle>
 				<EmptyDescription>This page doesn't exist.</EmptyDescription>
 			</EmptyHeader>
-			<Button asChild variant="outline">
-				<Link to="/">Back to overview</Link>
-			</Button>
+			<Button render={<Link to="/" />}>Back to overview</Button>
 		</Empty>
 	)
 }

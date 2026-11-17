@@ -5,7 +5,7 @@ import {Button} from '@/components/ui/button'
 import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover'
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select'
+import {SelectMenu} from '@/components/ui/select'
 import {Separator} from '@/components/ui/separator'
 import {Placeholder, valueButton} from './shared'
 
@@ -78,31 +78,28 @@ export function RepeatValue({
 				setOpen(o)
 			}}
 		>
-			<PopoverTrigger asChild disabled={disabled}>
-				<button type="button" className={valueButton}>
-					{label ? (
-						<>
-							<RepeatIcon className="text-muted-foreground" />
-							<span className="truncate">{label}</span>
-						</>
-					) : (
-						<Placeholder>Does not repeat</Placeholder>
-					)}
-				</button>
+			<PopoverTrigger disabled={disabled} render={<button type="button" className={valueButton} />}>
+				{label ? (
+					<>
+						<RepeatIcon className="text-muted-foreground" />
+						<span className="truncate">{label}</span>
+					</>
+				) : (
+					<Placeholder>Does not repeat</Placeholder>
+				)}
 			</PopoverTrigger>
 			<PopoverContent className="w-72 p-0" align="end">
 				<div className="grid grid-cols-2 gap-1 p-2">
-					<Button variant="secondary" size="sm" onClick={() => set({repeat_mode: MODE_DEFAULT, repeat_after: 86400})}>
+					<Button size="sm" onClick={() => set({repeat_mode: MODE_DEFAULT, repeat_after: 86400})}>
 						Every day
 					</Button>
-					<Button variant="secondary" size="sm" onClick={() => set({repeat_mode: MODE_DEFAULT, repeat_after: 604800})}>
+					<Button size="sm" onClick={() => set({repeat_mode: MODE_DEFAULT, repeat_after: 604800})}>
 						Every week
 					</Button>
-					<Button variant="secondary" size="sm" onClick={() => set({repeat_mode: MODE_MONTHLY, repeat_after: 0})}>
+					<Button size="sm" onClick={() => set({repeat_mode: MODE_MONTHLY, repeat_after: 0})}>
 						Every month
 					</Button>
 					<Button
-						variant="ghost"
 						size="sm"
 						className="text-muted-foreground"
 						disabled={!label}
@@ -121,16 +118,16 @@ export function RepeatValue({
 				>
 					<div className="flex flex-col gap-1.5">
 						<Label className="text-xs text-muted-foreground">Repeat</Label>
-						<Select value={mode} onValueChange={setMode}>
-							<SelectTrigger size="sm" className="w-full">
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value={String(MODE_DEFAULT)}>From the previous date</SelectItem>
-								<SelectItem value={String(MODE_FROM_DONE)}>From when it’s marked done</SelectItem>
-								<SelectItem value={String(MODE_MONTHLY)}>Monthly, same day</SelectItem>
-							</SelectContent>
-						</Select>
+						<SelectMenu
+							label="Repeat"
+							options={[
+								{value: String(MODE_DEFAULT), label: 'From the previous date'},
+								{value: String(MODE_FROM_DONE), label: 'From when it’s marked done'},
+								{value: String(MODE_MONTHLY), label: 'Monthly, same day'},
+							]}
+							value={mode}
+							onValueChange={setMode}
+						/>
 					</div>
 					{Number(mode) !== MODE_MONTHLY && (
 						<div className="flex items-center gap-2">
@@ -143,21 +140,17 @@ export function RepeatValue({
 								className="h-8 w-16"
 								aria-label="Amount"
 							/>
-							<Select value={unit} onValueChange={v => setUnit(v as Unit)}>
-								<SelectTrigger size="sm" className="flex-1">
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									{UNITS.map(u => (
-										<SelectItem key={u.value} value={u.value}>
-											{u.value}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
+							<div className="flex-1">
+								<SelectMenu
+									label="Unit"
+									options={UNITS.map(u => ({value: u.value, label: u.value}))}
+									value={unit}
+									onValueChange={v => setUnit(v as Unit)}
+								/>
+							</div>
 						</div>
 					)}
-					<Button type="submit" size="sm">
+					<Button type="submit" tone="primary" size="sm">
 						Save
 					</Button>
 				</form>

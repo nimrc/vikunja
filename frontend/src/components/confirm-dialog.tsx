@@ -1,16 +1,7 @@
-import {useState, type ReactNode} from 'react'
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+import type {ReactNode} from 'react'
+import {AlertDialog} from '@/components/ui/alert-dialog'
 
-/** Controlled destructive confirmation; `onConfirm` may be async and keeps the dialog busy until it settles. */
+/** Controlled destructive confirmation; stays open until `onConfirm` settles, and on failure. */
 export function ConfirmDialog({
 	open,
 	onOpenChange,
@@ -26,36 +17,14 @@ export function ConfirmDialog({
 	confirmLabel?: string
 	onConfirm: () => unknown
 }) {
-	const [busy, setBusy] = useState(false)
 	return (
-		<AlertDialog open={open} onOpenChange={o => !busy && onOpenChange(o)}>
-			<AlertDialogContent>
-				<AlertDialogHeader>
-					<AlertDialogTitle>{title}</AlertDialogTitle>
-					{description && <AlertDialogDescription>{description}</AlertDialogDescription>}
-				</AlertDialogHeader>
-				<AlertDialogFooter>
-					<AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
-					<AlertDialogAction
-						variant="destructive"
-						disabled={busy}
-						onClick={async e => {
-							e.preventDefault()
-							setBusy(true)
-							try {
-								await onConfirm()
-								onOpenChange(false)
-							} catch {
-								// the mutation already toasted
-							} finally {
-								setBusy(false)
-							}
-						}}
-					>
-						{confirmLabel}
-					</AlertDialogAction>
-				</AlertDialogFooter>
-			</AlertDialogContent>
-		</AlertDialog>
+		<AlertDialog
+			open={open}
+			onOpenChange={onOpenChange}
+			title={title}
+			description={description}
+			confirm={confirmLabel}
+			onConfirm={onConfirm}
+		/>
 	)
 }

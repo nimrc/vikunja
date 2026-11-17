@@ -13,7 +13,7 @@ import {
 import {restrictToVerticalAxis} from '@/pages/project/dnd-modifiers'
 import {arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy} from '@dnd-kit/sortable'
 import {CSS} from '@dnd-kit/utilities'
-import {ChevronRightIcon, GripVerticalIcon, ListTodoIcon, SearchIcon} from 'lucide-react'
+import {GripVerticalIcon, ListTodoIcon, SearchIcon} from 'lucide-react'
 import {toast} from 'sonner'
 import {
 	projectTasksList,
@@ -25,7 +25,7 @@ import {
 	type Task,
 } from '@/client/generated'
 import {Button} from '@/components/ui/button'
-import {Collapsible, CollapsibleContent, CollapsibleTrigger} from '@/components/ui/collapsible'
+import {Collapsible} from '@/components/ui/collapsible'
 import {Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle} from '@/components/ui/empty'
 import {InputGroup, InputGroupAddon, InputGroupInput} from '@/components/ui/input-group'
 import {Skeleton} from '@/components/ui/skeleton'
@@ -185,7 +185,6 @@ export function ListView({project, view}: {project: Project; view: ProjectView})
 					</DndContext>
 					{tasksQuery.hasNextPage && (
 						<Button
-							variant="ghost"
 							className="m-1 text-muted-foreground"
 							onClick={() => tasksQuery.fetchNextPage()}
 							disabled={tasksQuery.isFetchingNextPage}
@@ -279,21 +278,20 @@ function CompletedTasks({projectId, canWrite}: {projectId: number; canWrite: boo
 	const total = done.data?.total ?? 0
 	if (!total) return null
 	return (
-		<Collapsible open={open} onOpenChange={setOpen}>
-			<CollapsibleTrigger asChild>
-				<Button variant="ghost" size="sm" className="-ml-2 text-muted-foreground">
-					<ChevronRightIcon className={cn('transition-transform', open && 'rotate-90')} />
-					Completed
-					<span className="tabular-nums">{total}</span>
-				</Button>
-			</CollapsibleTrigger>
-			<CollapsibleContent>
-				<div className="mt-1 flex flex-col rounded-xl border bg-card p-1">
-					{done.data?.items?.map(t => (
-						<TaskRow key={t.id} task={t} canWrite={canWrite} />
-					))}
-				</div>
-			</CollapsibleContent>
+		<Collapsible
+			open={open}
+			onOpenChange={setOpen}
+			title={
+				<>
+					Completed <span className="tabular-nums">{total}</span>
+				</>
+			}
+		>
+			<div className="mt-1 flex flex-col rounded-xl border bg-card p-1">
+				{done.data?.items?.map(t => (
+					<TaskRow key={t.id} task={t} canWrite={canWrite} />
+				))}
+			</div>
 		</Collapsible>
 	)
 }

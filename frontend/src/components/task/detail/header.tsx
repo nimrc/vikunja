@@ -17,7 +17,7 @@ import {projectHref} from '@/components/app-sidebar'
 import {ColorDot} from '@/components/color-picker'
 import {ProjectSelect} from '@/components/project-select'
 import {Button} from '@/components/ui/button'
-import {Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle} from '@/components/ui/dialog'
+import {Dialog, DialogActions, DialogContent, DialogDescription, DialogTitle} from '@/components/ui/dialog'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -25,7 +25,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip'
+import {Tooltip} from '@/components/ui/tooltip'
 import {errorMessage} from '@/lib/api'
 import {useOpenTask} from '@/lib/navigation'
 import {invalidateProjects, invalidateTasks, keys, queryClient, useProjects} from '@/lib/queries'
@@ -35,13 +35,11 @@ import {ConfirmDialog} from './shared'
 
 function IconAction({label, onClick, children, active}: {label: string; onClick?: () => void; children: ReactNode; active?: boolean}) {
 	return (
-		<Tooltip>
-			<TooltipTrigger asChild>
-				<Button variant="ghost" size="icon-sm" aria-label={label} aria-pressed={active} onClick={onClick} className="text-muted-foreground">
-					{children}
-				</Button>
-			</TooltipTrigger>
-			<TooltipContent>{label}</TooltipContent>
+		<Tooltip
+			label={label}
+			render={<Button round size="sm" aria-pressed={active} onClick={onClick} className="text-muted-foreground" />}
+		>
+			{children}
 		</Tooltip>
 	)
 }
@@ -155,7 +153,7 @@ export function TaskHeader({
 					)}
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
-							<Button variant="ghost" size="icon-sm" aria-label="Task actions" className="text-muted-foreground">
+							<Button round size="sm" aria-label="Task actions" className="text-muted-foreground">
 								<MoreHorizontalIcon />
 							</Button>
 						</DropdownMenuTrigger>
@@ -230,25 +228,19 @@ export function TaskHeader({
 
 function DoneButton({done, onClick, disabled}: {done: boolean; onClick: () => void; disabled?: boolean}) {
 	return (
-		<Tooltip>
-			<TooltipTrigger asChild>
-				<button
-					type="button"
-					onClick={onClick}
-					disabled={disabled}
-					aria-pressed={done}
-					aria-label={done ? 'Mark as not done' : 'Mark as done'}
-					className={cn(
-						'group/done mt-1 flex size-7 shrink-0 items-center justify-center rounded-full border-2 transition-all outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50',
-						done
-							? 'border-emerald-600 bg-emerald-600 text-white dark:border-emerald-500 dark:bg-emerald-500'
-							: 'border-muted-foreground/40 text-transparent hover:border-emerald-600 hover:text-emerald-600 dark:hover:border-emerald-500 dark:hover:text-emerald-500',
-					)}
-				>
-					<CheckIcon className="size-4" strokeWidth={3} />
-				</button>
-			</TooltipTrigger>
-			<TooltipContent>{done ? 'Mark as not done' : 'Mark as done'}</TooltipContent>
+		<Tooltip
+			label={done ? 'Mark as not done' : 'Mark as done'}
+			onClick={onClick}
+			disabled={disabled}
+			aria-pressed={done}
+			className={cn(
+				'group/done mt-1 flex size-7 shrink-0 items-center justify-center rounded-full border-2 transition-all outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50',
+				done
+					? 'border-emerald-600 bg-emerald-600 text-white dark:border-emerald-500 dark:bg-emerald-500'
+					: 'border-muted-foreground/40 text-transparent hover:border-emerald-600 hover:text-emerald-600 dark:hover:border-emerald-500 dark:hover:text-emerald-500',
+			)}
+		>
+			<CheckIcon className="size-4" strokeWidth={3} />
 		</Tooltip>
 	)
 }
@@ -310,16 +302,15 @@ function MoveDialog({
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="sm:max-w-md">
-				<DialogHeader>
-					<DialogTitle>Move task</DialogTitle>
-					<DialogDescription>Pick the project “{task.title}” should move to.</DialogDescription>
-				</DialogHeader>
+				<DialogTitle>Move task</DialogTitle>
+				<DialogDescription>Pick the project “{task.title}” should move to.</DialogDescription>
 				<ProjectSelect value={target} onChange={setTarget} excludeId={task.project_id} noneLabel="Choose a project…" />
-				<DialogFooter>
-					<Button variant="outline" onClick={() => onOpenChange(false)}>
+				<DialogActions>
+					<Button onClick={() => onOpenChange(false)}>
 						Cancel
 					</Button>
 					<Button
+						tone="primary"
 						disabled={!target}
 						onClick={() => {
 							if (!target) return
@@ -329,7 +320,7 @@ function MoveDialog({
 					>
 						Move
 					</Button>
-				</DialogFooter>
+				</DialogActions>
 			</DialogContent>
 		</Dialog>
 	)

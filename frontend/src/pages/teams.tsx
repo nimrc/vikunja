@@ -28,8 +28,14 @@ import {ConfirmDialog} from '@/components/confirm-dialog'
 import {UserAvatarPlain, UserLine, UserPicker} from '@/components/user-picker'
 import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card'
-import {Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle} from '@/components/ui/dialog'
+import {Card} from '@/components/ui/card'
+import {
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogDescription,
+	DialogTitle,
+} from '@/components/ui/dialog'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -81,7 +87,7 @@ function TeamList() {
 					<h1 className="text-2xl font-semibold tracking-tight">Teams</h1>
 					<p className="text-sm text-muted-foreground">Share projects with a group of people at once.</p>
 				</div>
-				<Button onClick={() => setCreating(true)}>
+				<Button tone="primary" onClick={() => setCreating(true)}>
 					<PlusIcon />
 					New team
 				</Button>
@@ -103,7 +109,7 @@ function TeamList() {
 						<EmptyDescription>Create a team, add members, then share projects with the whole team.</EmptyDescription>
 					</EmptyHeader>
 					<EmptyContent>
-						<Button onClick={() => setCreating(true)}>
+						<Button tone="primary" onClick={() => setCreating(true)}>
 							<PlusIcon />
 							Create a team
 						</Button>
@@ -125,7 +131,7 @@ function TeamList() {
 								<div className="min-w-0 flex-1">
 									<div className="flex items-center gap-2">
 										<span className="truncate text-sm font-medium">{t.name}</span>
-										{t.is_public && <Badge variant="outline">Public</Badge>}
+										{t.is_public && <Badge tone="neutral">Public</Badge>}
 									</div>
 									<p className="truncate text-xs text-muted-foreground">
 										{plain(t.description) || `${members.length} member${members.length === 1 ? '' : 's'}`}
@@ -173,10 +179,8 @@ function CreateTeamDialog({open, onOpenChange}: {open: boolean; onOpenChange: (o
 						if (name.trim()) create.mutate()
 					}}
 				>
-					<DialogHeader>
-						<DialogTitle>New team</DialogTitle>
-						<DialogDescription>You become the team's first admin.</DialogDescription>
-					</DialogHeader>
+					<DialogTitle>New team</DialogTitle>
+					<DialogDescription>You become the team's first admin.</DialogDescription>
 					<FieldGroup>
 						<Field>
 							<FieldLabel htmlFor="team-name">Name</FieldLabel>
@@ -193,14 +197,12 @@ function CreateTeamDialog({open, onOpenChange}: {open: boolean; onOpenChange: (o
 							/>
 						</Field>
 					</FieldGroup>
-					<DialogFooter>
-						<Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-							Cancel
-						</Button>
-						<Button type="submit" disabled={!name.trim() || create.isPending}>
+					<DialogActions>
+						<Button onClick={() => onOpenChange(false)}>Cancel</Button>
+						<Button type="submit" tone="primary" disabled={!name.trim() || create.isPending}>
 							Create team
 						</Button>
-					</DialogFooter>
+					</DialogActions>
 				</form>
 			</DialogContent>
 		</Dialog>
@@ -217,11 +219,9 @@ function TeamDetail() {
 
 	return (
 		<div className="mx-auto w-full max-w-4xl p-4 md:p-6">
-			<Button variant="ghost" size="sm" className="-ml-2 mb-3 text-muted-foreground" asChild>
-				<Link to="/teams">
-					<ArrowLeftIcon />
-					Teams
-				</Link>
+			<Button size="sm" className="-ml-2 mb-3 text-muted-foreground" render={<Link to="/teams" />}>
+				<ArrowLeftIcon />
+				Teams
 			</Button>
 			{isLoading ? (
 				<div className="grid gap-4">
@@ -316,136 +316,126 @@ function TeamDetailBody({team}: {team: TeamWithPerm}) {
 					</p>
 				</div>
 				{!isAdmin && !fromExternal && (
-					<Button variant="outline" onClick={() => setLeaving(true)}>
+					<Button onClick={() => setLeaving(true)}>
 						Leave team
 					</Button>
 				)}
 			</div>
 
 			{isAdmin && (
-				<Card>
-					<CardHeader>
-						<CardTitle>Details</CardTitle>
-						<CardDescription>Name and description are visible to everyone in the team.</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<form
-							className="grid gap-4"
-							onSubmit={e => {
-								e.preventDefault()
-								if (name.trim() && dirty) update.mutate()
-							}}
-						>
-							<FieldGroup>
-								<Field>
-									<FieldLabel htmlFor="team-name">Name</FieldLabel>
-									<Input
-										id="team-name"
-										value={name}
-										disabled={fromExternal}
-										onChange={e => setName(e.target.value)}
-									/>
-								</Field>
-								<Field>
-									<FieldLabel htmlFor="team-desc">Description</FieldLabel>
-									<Textarea
-										id="team-desc"
-										rows={3}
-										value={description}
-										onChange={e => setDescription(e.target.value)}
-									/>
-								</Field>
-							</FieldGroup>
-							<div className="flex justify-end">
-								<Button type="submit" disabled={!dirty || !name.trim() || update.isPending}>
-									Save
-								</Button>
-							</div>
-						</form>
-					</CardContent>
+				<Card title="Details" description="Name and description are visible to everyone in the team.">
+					<form
+						className="grid gap-4"
+						onSubmit={e => {
+							e.preventDefault()
+							if (name.trim() && dirty) update.mutate()
+						}}
+					>
+						<FieldGroup>
+							<Field>
+								<FieldLabel htmlFor="team-name">Name</FieldLabel>
+								<Input
+									id="team-name"
+									value={name}
+									disabled={fromExternal}
+									onChange={e => setName(e.target.value)}
+								/>
+							</Field>
+							<Field>
+								<FieldLabel htmlFor="team-desc">Description</FieldLabel>
+								<Textarea
+									id="team-desc"
+									rows={3}
+									value={description}
+									onChange={e => setDescription(e.target.value)}
+								/>
+							</Field>
+						</FieldGroup>
+						<div className="flex justify-end">
+							<Button type="submit" tone="primary" disabled={!dirty || !name.trim() || update.isPending}>
+								Save
+							</Button>
+						</div>
+					</form>
 				</Card>
 			)}
 
-			<Card>
-				<CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
-					<div className="grid gap-1.5">
-						<CardTitle>Members</CardTitle>
-						<CardDescription>Admins can add and remove members and manage the team.</CardDescription>
-					</div>
-					{isAdmin && !fromExternal && (
+			<Card
+				title="Members"
+				description="Admins can add and remove members and manage the team."
+				action={
+					isAdmin && !fromExternal ? (
 						<UserPicker
 							label="Add member"
 							excludeIds={members.map(m => m.id ?? -1)}
 							disabled={addMember.isPending}
 							onSelect={u => u.username && addMember.mutate(u.username)}
 						/>
-					)}
-				</CardHeader>
-				<CardContent className="px-0">
-					<ul className="-mb-4 divide-y border-t">
-						{members.map(m => {
-							const self = m.id === me?.id
-							return (
-								<li key={m.id} className="flex items-center gap-3 px-4 py-3">
-									<div className="min-w-0 flex-1">
-										<UserLine
-											user={m}
-											extra={self && <span className="ml-1.5 font-normal text-muted-foreground">(you)</span>}
-										/>
-									</div>
-									{m.admin ? (
-										<Badge variant="secondary" className="gap-1">
-											<ShieldCheckIcon className="size-3" />
-											Admin
-										</Badge>
-									) : (
-										<Badge variant="outline" className="text-muted-foreground">
-											Member
-										</Badge>
-									)}
-									{isAdmin && !fromExternal && !self && (
-										<DropdownMenu>
-											<DropdownMenuTrigger asChild>
-												<Button variant="ghost" size="icon-sm" aria-label={`Manage ${displayName(m)}`}>
-													<MoreHorizontalIcon />
-												</Button>
-											</DropdownMenuTrigger>
-											<DropdownMenuContent align="end">
-												<DropdownMenuItem onSelect={() => m.username && toggleAdmin.mutate(m.username)}>
-													{m.admin ? <ShieldIcon /> : <ShieldCheckIcon />}
-													{m.admin ? 'Remove admin' : 'Make admin'}
-												</DropdownMenuItem>
-												<DropdownMenuSeparator />
-												<DropdownMenuItem
-													variant="destructive"
-													onSelect={() => m.username && removeMember.mutate(m.username)}
-												>
-													<UserMinusIcon />
-													Remove from team
-												</DropdownMenuItem>
-											</DropdownMenuContent>
-										</DropdownMenu>
-									)}
-								</li>
-							)
-						})}
-					</ul>
-				</CardContent>
+					) : undefined
+				}
+			>
+				<ul className="divide-y border-t">
+					{members.map(m => {
+						const self = m.id === me?.id
+						return (
+							<li key={m.id} className="flex items-center gap-3 py-3">
+								<div className="min-w-0 flex-1">
+									<UserLine
+										user={m}
+										extra={self && <span className="ml-1.5 font-normal text-muted-foreground">(you)</span>}
+									/>
+								</div>
+								{m.admin ? (
+									<Badge tone="neutral" className="gap-1">
+										<ShieldCheckIcon className="size-3" />
+										Admin
+									</Badge>
+								) : (
+									<Badge tone="neutral" className="text-muted-foreground">
+										Member
+									</Badge>
+								)}
+								{isAdmin && !fromExternal && !self && (
+									<DropdownMenu>
+										<DropdownMenuTrigger asChild>
+											<Button round aria-label={`Manage ${displayName(m)}`}>
+												<MoreHorizontalIcon />
+											</Button>
+										</DropdownMenuTrigger>
+										<DropdownMenuContent align="end">
+											<DropdownMenuItem onSelect={() => m.username && toggleAdmin.mutate(m.username)}>
+												{m.admin ? <ShieldIcon /> : <ShieldCheckIcon />}
+												{m.admin ? 'Remove admin' : 'Make admin'}
+											</DropdownMenuItem>
+											<DropdownMenuSeparator />
+											<DropdownMenuItem
+												variant="destructive"
+												onSelect={() => m.username && removeMember.mutate(m.username)}
+											>
+												<UserMinusIcon />
+												Remove from team
+											</DropdownMenuItem>
+										</DropdownMenuContent>
+									</DropdownMenu>
+								)}
+							</li>
+						)
+					})}
+				</ul>
 			</Card>
 
 			{isAdmin && (
-				<Card className="border-destructive/40">
-					<CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
-						<div className="grid gap-1.5">
-							<CardTitle>Delete team</CardTitle>
-							<CardDescription>Projects shared with this team lose that access. This cannot be undone.</CardDescription>
-						</div>
-						<Button variant="destructive" onClick={() => setDeleting(true)}>
+				<Card
+					className="border-destructive/40"
+					title="Delete team"
+					description="Projects shared with this team lose that access. This cannot be undone."
+					action={
+						<Button tone="danger" onClick={() => setDeleting(true)}>
 							<Trash2Icon />
 							Delete team
 						</Button>
-					</CardHeader>
-				</Card>
+					}
+				/>
 			)}
 
 			<ConfirmDialog

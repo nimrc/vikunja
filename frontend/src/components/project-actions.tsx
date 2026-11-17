@@ -4,16 +4,7 @@ import {useNavigate} from 'react-router'
 import {toast} from 'sonner'
 import {ArchiveIcon, ArchiveRestoreIcon, CopyIcon, FolderPlusIcon, PencilIcon, Share2Icon, StarIcon, StarOffIcon, Trash2Icon} from 'lucide-react'
 import {filtersDelete, projectsDelete, projectsDuplicate, projectsUpdate, type Project} from '@/client/generated'
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+import {AlertDialog} from '@/components/ui/alert-dialog'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -104,7 +95,7 @@ export function ProjectActionsMenu({project, children, align = 'end'}: {project:
 					)}
 					{!filter && canWrite && (
 						<ProjectCreateDialog parentId={project.id}>
-							<DropdownMenuItem onSelect={e => e.preventDefault()}>
+							<DropdownMenuItem closeOnSelect={false}>
 								<FolderPlusIcon />
 								New subproject
 							</DropdownMenuItem>
@@ -140,24 +131,18 @@ export function ProjectActionsMenu({project, children, align = 'end'}: {project:
 					)}
 				</DropdownMenuContent>
 			</DropdownMenu>
-			<AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>Delete “{project.title}”?</AlertDialogTitle>
-						<AlertDialogDescription>
-							{filter
-								? 'The saved filter is removed. Tasks are not affected.'
-								: 'The project, its subprojects and all their tasks move to the trash.'}
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<AlertDialogAction variant="destructive" onClick={() => remove.mutate()}>
-							Delete
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+			<AlertDialog
+				open={confirmDelete}
+				onOpenChange={setConfirmDelete}
+				title={`Delete “${project.title}”?`}
+				description={
+					filter
+						? 'The saved filter is removed. Tasks are not affected.'
+						: 'The project, its subprojects and all their tasks move to the trash.'
+				}
+				confirm="Delete"
+				onConfirm={() => remove.mutate()}
+			/>
 		</>
 	)
 }

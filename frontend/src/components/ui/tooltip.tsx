@@ -1,54 +1,53 @@
 import * as React from "react"
-import { cn } from "cn"
-import { Tooltip as TooltipPrimitive } from "radix-ui"
+import { Tooltip as SdkTooltip, TooltipTrigger } from "@ui-sdk/react/tooltip"
 
-function TooltipProvider({
-  delayDuration = 0,
-  ...props
-}: React.ComponentProps<typeof TooltipPrimitive.Provider>) {
-  return (
-    <TooltipPrimitive.Provider
-      data-slot="tooltip-provider"
-      delayDuration={delayDuration}
-      {...props}
-    />
-  )
-}
+// The hint is a small LCD beside its control, its characters faint until the
+// control is hovered or focused, when they darken one after another. The
+// trigger's aria-label already names it, so the screen is hidden from screen
+// readers.
+// Touch screens have no hover, and a tapped button isn't focused in Safari, so
+// there a press opens and closes the tooltip instead.
+// The trigger takes any button props; `render` makes another control, like a
+// Button, the trigger itself.
+const touch = typeof matchMedia !== "undefined" && matchMedia("(pointer: coarse)").matches
 
 function Tooltip({
-  ...props
-}: React.ComponentProps<typeof TooltipPrimitive.Root>) {
-  return <TooltipPrimitive.Root data-slot="tooltip" {...props} />
-}
-
-function TooltipTrigger({
-  ...props
-}: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
-  return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />
-}
-
-function TooltipContent({
-  className,
-  sideOffset = 0,
+  label,
   children,
   ...props
-}: React.ComponentProps<typeof TooltipPrimitive.Content>) {
+}: React.ComponentProps<typeof TooltipTrigger> & { label: string }) {
+  const [open, setOpen] = React.useState(false)
+  const wrap = React.useRef<HTMLSpanElement>(null)
+  // On a touch screen nothing hovers away, so an open tooltip closes on a
+  // tap anywhere else, or by itself after a moment.
+  React.useEffect(() => {
+    if (!touch || !open) return
+    const away = (event: PointerEvent) => {
+      if (!wrap.current?.contains(event.target as Node)) setOpen(false)
+    }
+    const timer = setTimeout(() => setOpen(false), 2500)
+    document.addEventListener("pointerdown", away, true)
+    return () => {
+      clearTimeout(timer)
+      document.removeEventListener("pointerdown", away, true)
+    }
+  }, [open])
   return (
-    <TooltipPrimitive.Portal>
-      <TooltipPrimitive.Content
-        data-slot="tooltip-content"
-        sideOffset={sideOffset}
-        className={cn(
-          "z-50 inline-flex w-fit max-w-xs origin-(--radix-tooltip-content-transform-origin) items-center gap-1.5 rounded-md bg-foreground px-3 py-1.5 text-xs text-background has-data-[slot=kbd]:pr-1.5 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-sm data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
-          className
-        )}
-        {...props}
-      >
-        {children}
-        <TooltipPrimitive.Arrow className="z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px] bg-foreground fill-foreground" />
-      </TooltipPrimitive.Content>
-    </TooltipPrimitive.Portal>
+    <span data-kit="tooltip-wrap" ref={wrap}>
+      <span data-kit="tooltip-legend" data-open={open || undefined} aria-hidden>
+        {[...label].map((char, i) => (
+          <span key={i} style={{ "--i": i } as React.CSSProperties}>
+            {char}
+          </span>
+        ))}
+      </span>
+      <SdkTooltip open={open} onOpenChange={setOpen} toggleable={touch}>
+        <TooltipTrigger data-kit="tooltip-trigger" aria-label={label} {...props}>
+          {children}
+        </TooltipTrigger>
+      </SdkTooltip>
+    </span>
   )
 }
 
-export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger }
+export { Tooltip }

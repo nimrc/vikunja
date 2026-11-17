@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;300;400;500&display=block");
 
 @custom-variant dark (&:is(.dark *));
 
@@ -127,4 +128,28 @@
   html {
     @apply font-sans;
     }
+}
+/* A large dialog (DialogContent size="lg"): the kit only sizes small ones. */
+[data-skin="hardware"] [data-kit="dialog"][data-size="lg"]:not(#_):not(#_) {
+	width: min(64rem, calc(100% - 32px));
+	height: min(92dvh, 60rem);
+
+	& > [data-kit="dialog-surface"] {
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+	}
+}
+
+/* The kit draws separators vertical only inside its toolbars. */
+[data-skin="hardware"] [data-kit="separator"][data-orientation="vertical"]:not(#_):not(#_) {
+	width: 1px;
+	height: auto;
+	align-self: stretch;
+}
+
+/* An icon latching key is square; the kit sizes keys by their printed label. */
+[data-skin="hardware"] [data-kit="check"][data-icon]:not(#_):not(#_):not(#_) {
+	flex: none;
+	width: 52px;
 }

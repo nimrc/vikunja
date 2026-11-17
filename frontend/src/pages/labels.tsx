@@ -8,7 +8,7 @@ import {ConfirmDialog} from '@/components/confirm-dialog'
 import {LabelBadge} from '@/components/task/task-bits'
 import {UserAvatarPlain} from '@/components/user-picker'
 import {Button} from '@/components/ui/button'
-import {Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle} from '@/components/ui/dialog'
+import {Dialog, DialogActions, DialogContent, DialogDescription, DialogTitle} from '@/components/ui/dialog'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -22,7 +22,7 @@ import {Input} from '@/components/ui/input'
 import {InputGroup, InputGroupAddon, InputGroupInput} from '@/components/ui/input-group'
 import {Skeleton} from '@/components/ui/skeleton'
 import {Textarea} from '@/components/ui/textarea'
-import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip'
+import {Tooltip} from '@/components/ui/tooltip'
 import {cssColor, displayName} from '@/lib/format'
 import {invalidateTasks, keys, queryClient, useCurrentUser, useLabels} from '@/lib/queries'
 
@@ -69,7 +69,7 @@ export default function Labels() {
 						</InputGroupAddon>
 						<InputGroupInput placeholder="Search labels…" value={q} onChange={e => setQ(e.target.value)} />
 					</InputGroup>
-					<Button onClick={() => setEditing('new')}>
+					<Button tone="primary" onClick={() => setEditing('new')}>
 						<PlusIcon />
 						New label
 					</Button>
@@ -92,7 +92,7 @@ export default function Labels() {
 						<EmptyDescription>Labels help you group related tasks, like “bug” or “waiting”.</EmptyDescription>
 					</EmptyHeader>
 					<EmptyContent>
-						<Button onClick={() => setEditing('new')}>
+						<Button tone="primary" onClick={() => setEditing('new')}>
 							<PlusIcon />
 							Create a label
 						</Button>
@@ -120,8 +120,8 @@ export default function Labels() {
 										<DropdownMenu>
 											<DropdownMenuTrigger asChild>
 												<Button
-													variant="ghost"
-													size="icon-sm"
+													round
+													size="sm"
 													className="-mt-1 -mr-1 opacity-60 group-hover:opacity-100"
 													aria-label="Label actions"
 												>
@@ -141,13 +141,8 @@ export default function Labels() {
 											</DropdownMenuContent>
 										</DropdownMenu>
 									) : (
-										<Tooltip>
-											<TooltipTrigger asChild>
-												<span>
-													<UserAvatarPlain user={l.created_by} size={20} />
-												</span>
-											</TooltipTrigger>
-											<TooltipContent>Created by {displayName(l.created_by)} · read only</TooltipContent>
+										<Tooltip label={`Created by ${displayName(l.created_by)} · read only`} render={<span />}>
+											<UserAvatarPlain user={l.created_by} size={20} />
 										</Tooltip>
 									)}
 								</div>
@@ -211,10 +206,8 @@ function LabelForm({label, onClose}: {label: Label | 'new'; onClose: () => void}
 			}}
 			className="grid gap-4"
 		>
-			<DialogHeader>
-				<DialogTitle>{isNew ? 'New label' : 'Edit label'}</DialogTitle>
-				<DialogDescription>Preview: {title.trim() ? <LabelBadge label={{title, hex_color: color}} /> : '—'}</DialogDescription>
-			</DialogHeader>
+			<DialogTitle>{isNew ? 'New label' : 'Edit label'}</DialogTitle>
+			<DialogDescription>Preview: {title.trim() ? <LabelBadge label={{title, hex_color: color}} /> : '—'}</DialogDescription>
 			<FieldGroup>
 				<Field>
 					<FieldLabel htmlFor="label-title">Title</FieldLabel>
@@ -235,14 +228,14 @@ function LabelForm({label, onClose}: {label: Label | 'new'; onClose: () => void}
 					<ColorPicker value={color} onChange={setColor} />
 				</Field>
 			</FieldGroup>
-			<DialogFooter>
-				<Button type="button" variant="outline" onClick={onClose}>
+			<DialogActions>
+				<Button type="button" onClick={onClose}>
 					Cancel
 				</Button>
-				<Button type="submit" disabled={!title.trim() || save.isPending}>
+				<Button type="submit" tone="primary" disabled={!title.trim() || save.isPending}>
 					{isNew ? 'Create' : 'Save'}
 				</Button>
-			</DialogFooter>
+			</DialogActions>
 		</form>
 	)
 }

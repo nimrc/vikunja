@@ -23,7 +23,7 @@ import {
 } from '@/client/generated'
 import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
-import {Dialog, DialogContent, DialogTitle} from '@/components/ui/dialog'
+import {Dialog, DialogActions, DialogClose, DialogContent, DialogTitle} from '@/components/ui/dialog'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -216,7 +216,7 @@ export function TaskAttachments({
 								e.target.value = ''
 							}}
 						/>
-						<Button variant="ghost" size="sm" onClick={() => input.current?.click()} disabled={uploading}>
+						<Button size="sm" onClick={() => input.current?.click()} disabled={uploading}>
 							{uploading ? <Spinner /> : <UploadIcon />}
 							Upload
 						</Button>
@@ -297,7 +297,7 @@ function AttachmentCard({
 						{a.file?.name}
 					</button>
 					{isCover && (
-						<Badge variant="secondary" className="h-4 shrink-0 px-1 text-[10px]">
+						<Badge className="h-4 shrink-0 px-1 text-[10px]">
 							Cover
 						</Badge>
 					)}
@@ -310,7 +310,7 @@ function AttachmentCard({
 			</div>
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
-					<Button variant="ghost" size="icon-sm" className="text-muted-foreground" aria-label="Attachment actions">
+					<Button round size="sm" className="text-muted-foreground" aria-label="Attachment actions">
 						<MoreHorizontalIcon />
 					</Button>
 				</DropdownMenuTrigger>
@@ -363,7 +363,7 @@ function ImageViewer({task, attachment, onClose}: {task: Task; attachment: TaskA
 	return (
 		<Dialog open={!!attachment} onOpenChange={o => !o && onClose()}>
 			<DialogContent className="gap-3 sm:max-w-4xl">
-				<DialogTitle className="truncate pr-8 text-sm">{shown?.file?.name}</DialogTitle>
+				<DialogTitle className="truncate text-sm">{shown?.file?.name}</DialogTitle>
 				<div className="flex min-h-48 items-center justify-center overflow-hidden rounded-lg bg-muted">
 					{preview.data ? (
 						<img src={preview.data} alt={shown?.file?.name} className="max-h-[70vh] w-auto object-contain" />
@@ -371,12 +371,13 @@ function ImageViewer({task, attachment, onClose}: {task: Task; attachment: TaskA
 						<Spinner />
 					)}
 				</div>
-				<div className="flex justify-end">
-					<Button variant="outline" size="sm" onClick={() => shown && void downloadAttachment(task.id!, shown)}>
+				<DialogActions>
+					<DialogClose render={<Button size="sm" />}>Close</DialogClose>
+					<Button size="sm" onClick={() => shown && void downloadAttachment(task.id!, shown)}>
 						<DownloadIcon />
 						Download original
 					</Button>
-				</div>
+				</DialogActions>
 			</DialogContent>
 		</Dialog>
 	)

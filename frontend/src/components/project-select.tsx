@@ -1,6 +1,5 @@
 import {useMemo, useState} from 'react'
 import {CheckIcon, ChevronsUpDownIcon} from 'lucide-react'
-import {Button} from '@/components/ui/button'
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from '@/components/ui/command'
 import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover'
 import {ColorDot} from '@/components/color-picker'
@@ -48,18 +47,20 @@ export function ProjectSelect({
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
-			<PopoverTrigger asChild>
-				<Button variant="outline" role="combobox" className={cn('w-full justify-between font-normal', className)}>
-					<span className="flex min-w-0 items-center gap-2">
-						{selected && <ColorDot color={selected.color} />}
-						<span className={cn('truncate', !selected && 'text-muted-foreground')}>
-							{selected?.path ?? noneLabel}
-						</span>
+			<PopoverTrigger
+				data-kit="select-trigger"
+				role="combobox"
+				className={cn('flex w-full items-center justify-between', className)}
+			>
+				<span className="flex min-w-0 items-center gap-2">
+					{selected && <ColorDot color={selected.color} />}
+					<span className={cn('truncate', !selected && 'text-muted-foreground')}>
+						{selected?.path ?? noneLabel}
 					</span>
-					<ChevronsUpDownIcon className="opacity-50" />
-				</Button>
+				</span>
+				<ChevronsUpDownIcon className="opacity-50" />
 			</PopoverTrigger>
-			<PopoverContent className="w-(--radix-popover-trigger-width) min-w-64 p-0" align="start">
+			<PopoverContent className="w-(--anchor-width) min-w-64 p-0" align="start">
 				<Command>
 					<CommandInput placeholder="Search projects…" />
 					<CommandList>
